@@ -1,0 +1,45 @@
+# Environment & Secrets
+.env
+.env*.local
+.env.production
+.env.local
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+ayurvoice.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+.venv/
+venv/
+ENV/
+backend/.venv/
+
+# Node & Next.js
+node_modules/
+frontend/node_modules/
+.next/
+frontend/.next/
+out/
+frontend/out/
+.npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System files
+.DS_Store
+Thumbs.db
+*.log
+
