@@ -23,7 +23,7 @@ class BookingService:
     async def book_appointment(
         cls,
         db: AsyncSession,
-        clinic_id: uuid.UUID,
+        clinic_id: Optional[uuid.UUID],
         patient_name: str,
         patient_phone: str,
         appointment_time_str: str,
@@ -33,7 +33,10 @@ class BookingService:
         notes: Optional[str] = None,
     ) -> BookAppointmentResponse:
         # 1. Fetch clinic
-        clinic_stmt = select(Clinic).where(Clinic.id == clinic_id)
+        if clinic_id:
+            clinic_stmt = select(Clinic).where(Clinic.id == clinic_id)
+        else:
+            clinic_stmt = select(Clinic).limit(1)
         clinic_res = await db.execute(clinic_stmt)
         clinic = clinic_res.scalar_one_or_none()
         if not clinic:
@@ -44,7 +47,7 @@ class BookingService:
 
         # 2. Match doctor
         doctor_stmt = select(Doctor).where(
-            and_(Doctor.clinic_id == clinic_id, Doctor.is_active == True)  # noqa
+            and_(Doctor.clinic_id == clinic.id, Doctor.is_active == True)  # noqa
         )
         if doctor_name:
             clean_name = doctor_name.replace("Dr.", "").replace("Dr ", "").strip().lower()

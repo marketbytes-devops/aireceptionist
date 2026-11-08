@@ -46,13 +46,16 @@ class AvailabilityService:
     async def check_availability(
         cls,
         db: AsyncSession,
-        clinic_id: uuid.UUID,
+        clinic_id: Optional[uuid.UUID],
         date_time_str: str,
         doctor_name: Optional[str] = None,
         treatment_type: Optional[str] = None,
     ) -> CheckAvailabilityResponse:
         # 1. Fetch clinic
-        clinic_stmt = select(Clinic).where(Clinic.id == clinic_id)
+        if clinic_id:
+            clinic_stmt = select(Clinic).where(Clinic.id == clinic_id)
+        else:
+            clinic_stmt = select(Clinic).limit(1)
         clinic_result = await db.execute(clinic_stmt)
         clinic = clinic_result.scalar_one_or_none()
         if not clinic:
@@ -64,7 +67,7 @@ class AvailabilityService:
 
         # 2. Find target doctor
         doctor_stmt = select(Doctor).where(
-            and_(Doctor.clinic_id == clinic_id, Doctor.is_active == True)  # noqa
+            and_(Doctor.clinic_id == clinic.id, Doctor.is_active == True)  # noqa
         )
         if doctor_name:
             clean_doc_name = doctor_name.replace("Dr.", "").replace("Dr ", "").strip().lower()

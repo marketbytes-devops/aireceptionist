@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class CheckAvailabilityRequest(BaseModel):
-    clinic_id: uuid.UUID = Field(..., description="Unique ID of the clinic")
+    clinic_id: Optional[uuid.UUID] = Field(None, description="Unique ID of the clinic (optional, defaults to primary clinic)")
     doctor_name: Optional[str] = Field(None, description="Doctor name requested by the patient, e.g. 'Dr. Varma'")
     date_time: str = Field(..., description="Requested date or ISO datetime, e.g. '2026-11-10' or '2026-11-10T10:00:00'")
     treatment_type: Optional[str] = Field(None, description="Ayurvedic treatment or consultation type")
@@ -20,7 +20,7 @@ class CheckAvailabilityResponse(BaseModel):
 
 
 class BookAppointmentRequest(BaseModel):
-    clinic_id: uuid.UUID = Field(..., description="Unique ID of the clinic")
+    clinic_id: Optional[uuid.UUID] = Field(None, description="Unique ID of the clinic (optional, defaults to primary clinic)")
     doctor_name: Optional[str] = Field(None, description="Optional doctor name; defaults to clinic's available doctor")
     patient_name: str = Field(..., description="Full name of the patient")
     patient_phone: str = Field(..., description="Patient contact phone number with country code")
