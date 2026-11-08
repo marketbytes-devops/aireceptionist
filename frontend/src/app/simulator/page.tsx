@@ -10,17 +10,18 @@ import {
   Clock, 
   CheckCircle2, 
   Phone, 
+  PhoneOff,
   User, 
   RefreshCw,
-  Code2,
+  Code2, 
   Stethoscope,
-  Volume2,
-  VolumeX,
   Mic,
-  MicOff
+  Radio
 } from "lucide-react";
 import { fetchClinics, fetchDoctors } from "@/lib/api";
 import { Clinic, Doctor } from "@/lib/types";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://aireceptionist-api.marketbytes.in/api/v1";
 
 interface ChatMessage {
   id: string;
@@ -40,12 +41,9 @@ export default function SimulatorPage() {
   const [selectedClinic, setSelectedClinic] = useState<string>("");
   const [selectedDoctor, setSelectedDoctor] = useState<string>("");
   
-  // Voice & Audio synthesis toggle
-  const [voiceAudioEnabled, setVoiceAudioEnabled] = useState(true);
-  const [isListening, setIsListening] = useState(false);
-  const [speechLanguage, setSpeechLanguage] = useState<"ml-IN" | "en-IN">("ml-IN");
-  const [liveTranscript, setLiveTranscript] = useState("");
-  const recognitionRef = useRef<any>(null);
+  // ElevenLabs Live Call State
+  const [isElevenLabsActive, setIsElevenLabsActive] = useState(false);
+  const [elevenLabsStatus, setElevenLabsStatus] = useState<string>("Ready");
 
   // Booking Form State for Simulator
   const [patientName, setPatientName] = useState("Kavita Raman");
@@ -77,31 +75,74 @@ export default function SimulatorPage() {
     });
   }, []);
 
-  // Web Speech API: Text-to-Speech synthesis
-  const speakText = (text: string) => {
-    if (!voiceAudioEnabled || typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    try {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.95;
-      utterance.pitch = 1.05;
+  // Monitor ElevenLabs WebRTC Widget Live State
+  useEffect(() => {
+    let observer: MutationObserver | null = null;
 
-      const voices = window.speechSynthesis.getVoices();
-      const matchedVoice = voices.find((v) => 
-        speechLanguage === "ml-IN" 
-          ? (v.lang.includes("ml") || v.lang.includes("hi") || v.lang.includes("IN"))
-          : (v.lang.includes("en-IN") || v.name.toLowerCase().includes("india"))
-      );
-      if (matchedVoice) {
-        utterance.voice = matchedVoice;
+    const setupObserver = () => {
+      const widget = document.querySelector("elevenlabs-convai");
+      if (widget && widget.shadowRoot) {
+        observer = new MutationObserver(() => {
+          const text = widget.shadowRoot?.textContent?.toLowerCase() || "";
+          const isCallInProgress = text.includes("end") || text.includes("listening") || text.includes("speaking");
+          setIsElevenLabsActive(isCallInProgress);
+
+          if (text.includes("speaking")) {
+            setElevenLabsStatus("Asha Speaking...");
+          } else if (text.includes("listening")) {
+            setElevenLabsStatus("Listening to you...");
+          } else if (isCallInProgress) {
+            setElevenLabsStatus("Call Active");
+          } else {
+            setElevenLabsStatus("Ready");
+          }
+        });
+
+        observer.observe(widget.shadowRoot, {
+          childList: true,
+          subtree: true,
+          characterData: true,
+        });
       }
-      window.speechSynthesis.speak(utterance);
-    } catch (e) {
-      console.warn("Speech synthesis error:", e);
+    };
+
+    const interval = setInterval(() => {
+      const widget = document.querySelector("elevenlabs-convai");
+      if (widget && widget.shadowRoot) {
+        setupObserver();
+        clearInterval(interval);
+      }
+    }, 400);
+
+    return () => {
+      clearInterval(interval);
+      if (observer) observer.disconnect();
+    };
+  }, []);
+
+  // Trigger the Official ElevenLabs Conversational AI WebRTC Call
+  const triggerElevenLabsCall = () => {
+    if (typeof window === "undefined") return;
+
+    const widget = document.querySelector("elevenlabs-convai");
+    if (widget) {
+      const shadow = widget.shadowRoot;
+      if (shadow) {
+        // Find the primary action button inside the widget shadow DOM
+        const btn = shadow.querySelector("button") || shadow.querySelector("[role='button']");
+        if (btn) {
+          (btn as HTMLElement).click();
+          return;
+        }
+      }
+      // Fallback: bring widget into view and click
+      (widget as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
+      (widget as HTMLElement).click();
     }
   };
 
-  const processVoiceQuery = async (queryText: string) => {
+  // Process text-based queries via production API
+  const processQuery = async (queryText: string) => {
     if (!queryText.trim() || !selectedClinic) return;
     setIsLoading(true);
 
@@ -113,13 +154,12 @@ export default function SimulatorPage() {
     };
 
     setMessages((prev) => [...prev, userMsg]);
-
     const qLower = queryText.toLowerCase();
 
     // Check if user is asking to book
     if (qLower.includes("book") || qLower.includes("confirm") || qLower.includes("ബുക്ക്") || qLower.includes("ഉറപ്പിക്കുക")) {
       try {
-        const res = await fetch("http://localhost:8000/api/v1/tools/book-appointment", {
+        const res = await fetch(`${API_BASE}/tools/book-appointment`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -146,11 +186,9 @@ export default function SimulatorPage() {
         };
         setMessages((prev) => [...prev, agentMsg]);
         setActiveJsonTab(data);
-        speakText(reply);
       } catch (err) {
         const fallback = "താങ്കളുടെ അപ്പോയിന്റ്മെന്റ് ബുക്ക് ചെയ്തിട്ടുണ്ട്! Booking ID: AYUR-7821.";
         setMessages((prev) => [...prev, { id: String(Date.now() + 1), sender: "agent", text: fallback, timestamp: "Now" }]);
-        speakText(fallback);
       } finally {
         setIsLoading(false);
       }
@@ -160,7 +198,7 @@ export default function SimulatorPage() {
     // Check if asking about availability / doctors
     if (qLower.includes("doctor") || qLower.includes("available") || qLower.includes("time") || qLower.includes("ഡോക്ടർ") || qLower.includes("സമയം") || qLower.includes("വർമ്മ")) {
       try {
-        const res = await fetch("http://localhost:8000/api/v1/tools/check-availability", {
+        const res = await fetch(`${API_BASE}/tools/check-availability`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -185,11 +223,9 @@ export default function SimulatorPage() {
         };
         setMessages((prev) => [...prev, agentMsg]);
         setActiveJsonTab(data);
-        speakText(reply);
       } catch (err) {
         const fallback = "ഡോക്ടർ രാജേഷ് വർമ്മ തിങ്കൾ മുതൽ വെള്ളി വരെ രാവിലെ 9 മുതൽ ഉച്ചയ്ക്ക് 1 വരെയും ഉച്ചയ്ക്ക് 2 മുതൽ 5 വരെയും ലഭ്യമാണ്.";
         setMessages((prev) => [...prev, { id: String(Date.now() + 1), sender: "agent", text: fallback, timestamp: "Now" }]);
-        speakText(fallback);
       } finally {
         setIsLoading(false);
       }
@@ -213,150 +249,90 @@ export default function SimulatorPage() {
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
     setMessages((prev) => [...prev, agentMsg]);
-    speakText(kbReply);
     setIsLoading(false);
   };
 
-  const toggleMic = () => {
-    if (typeof window === "undefined") return;
-
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert("Microphone recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge.");
-      return;
-    }
-
-    if (isListening && recognitionRef.current) {
-      try {
-        recognitionRef.current.stop();
-      } catch (e) {}
-      setIsListening(false);
-      return;
-    }
-
-    try {
-      const recognition = new SpeechRecognition();
-      recognitionRef.current = recognition;
-      recognition.continuous = false;
-      recognition.interimResults = true;
-      recognition.lang = speechLanguage;
-
-      let capturedText = "";
-
-      recognition.onstart = () => {
-        setIsListening(true);
-        setLiveTranscript("");
-      };
-
-      recognition.onresult = (event: any) => {
-        let interim = "";
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            capturedText += event.results[i][0].transcript;
-          } else {
-            interim += event.results[i][0].transcript;
-          }
-        }
-        setLiveTranscript(capturedText || interim);
-      };
-
-      recognition.onerror = (event: any) => {
-        console.warn("Speech recognition event:", event.error);
-        setIsListening(false);
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-        const finalText = capturedText.trim() || liveTranscript.trim();
-        if (finalText) {
-          processVoiceQuery(finalText);
-          setLiveTranscript("");
-        }
-      };
-
-      recognition.start();
-    } catch (err) {
-      console.error("Failed to start speech recognition:", err);
-      setIsListening(false);
-    }
+  const handleFreeformSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!freeformQuery.trim()) return;
+    const q = freeformQuery;
+    setFreeformQuery("");
+    processQuery(q);
   };
 
   const handleSimulateCheckAvailability = async () => {
     if (!selectedClinic) return;
     setIsLoading(true);
 
+    const userPrompt = `Is ${selectedDoctor || "Dr. Rajesh Varma"} available on ${requestedDateTime.replace("T", " at ")} for ${treatmentType}?`;
     const userMsg: ChatMessage = {
       id: String(Date.now()),
       sender: "user",
-      text: `Is ${selectedDoctor || "the doctor"} available on ${requestedDateTime.replace("T", " at ")}?`,
+      text: userPrompt,
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
-
     setMessages((prev) => [...prev, userMsg]);
 
     try {
-      const res = await fetch("http://localhost:8000/api/v1/tools/check-availability", {
+      const res = await fetch(`${API_BASE}/tools/check-availability`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           clinic_id: selectedClinic,
-          doctor_name: selectedDoctor,
+          doctor_name: selectedDoctor || "Dr. Rajesh Varma",
           date_time: requestedDateTime,
           treatment_type: treatmentType,
         }),
       });
 
       const data = await res.json();
+      setActiveJsonTab(data);
+
+      const agentResponseText = data.available
+        ? `${data.message} ${data.available_slots?.length ? `Available slots: ${data.available_slots.join(", ")}.` : ""}`
+        : data.message;
 
       const agentMsg: ChatMessage = {
         id: String(Date.now() + 1),
         sender: "agent",
-        text: data.message,
+        text: agentResponseText,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         toolCall: {
           name: "check-availability",
-          payload: {
-            clinic_id: selectedClinic,
-            doctor_name: selectedDoctor,
-            date_time: requestedDateTime,
-          },
+          payload: { clinic_id: selectedClinic, doctor_name: selectedDoctor, date_time: requestedDateTime },
           response: data,
         },
       };
-
       setMessages((prev) => [...prev, agentMsg]);
-      setActiveJsonTab(data);
-      speakText(data.message);
-    } catch (err) {
-      const fallbackText = `Yes, ${selectedDoctor || "Dr. Rajesh Varma"} is available on Tuesday, November 10 at 10:00 AM for ${treatmentType}. Would you like me to reserve this consultation for you?`;
+    } catch (err: any) {
+      console.error("Check availability error:", err);
       const errorMsg: ChatMessage = {
         id: String(Date.now() + 1),
         sender: "agent",
-        text: fallbackText,
+        text: "Apologies, could not verify the doctor schedule. Please try again.",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
       setMessages((prev) => [...prev, errorMsg]);
-      speakText(fallbackText);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSimulateBookAppointment = async () => {
+  const handleSimulateBooking = async () => {
     if (!selectedClinic) return;
     setIsLoading(true);
 
+    const userPrompt = `Please book an appointment for patient ${patientName} (${patientPhone}) with ${selectedDoctor || "Dr. Rajesh Varma"} on ${requestedDateTime.replace("T", " at ")} for ${treatmentType}.`;
     const userMsg: ChatMessage = {
       id: String(Date.now()),
       sender: "user",
-      text: `Yes please, book that slot for ${patientName}, phone number is ${patientPhone}.`,
+      text: userPrompt,
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
-
     setMessages((prev) => [...prev, userMsg]);
 
     try {
-      const res = await fetch("http://localhost:8000/api/v1/tools/book-appointment", {
+      const res = await fetch(`${API_BASE}/tools/book-appointment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -366,71 +342,50 @@ export default function SimulatorPage() {
           patient_phone: patientPhone,
           appointment_time: requestedDateTime,
           treatment_type: treatmentType,
+          notes: "Autonomous booking executed via Simulator test runner",
         }),
       });
 
       const data = await res.json();
+      setActiveJsonTab(data);
+
+      const agentResponseText = data.message || `Confirmed! Booking ID is ${data.confirmation_id || "AYUR-8921"}.`;
 
       const agentMsg: ChatMessage = {
         id: String(Date.now() + 1),
         sender: "agent",
-        text: data.message,
+        text: agentResponseText,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         toolCall: {
           name: "book-appointment",
-          payload: {
-            clinic_id: selectedClinic,
-            patient_name: patientName,
-            patient_phone: patientPhone,
-            appointment_time: requestedDateTime,
-          },
+          payload: { clinic_id: selectedClinic, patient_name: patientName, appointment_time: requestedDateTime },
           response: data,
         },
       };
-
       setMessages((prev) => [...prev, agentMsg]);
-      setActiveJsonTab(data);
-      speakText(data.message);
-    } catch (err) {
-      const fallbackText = `Your appointment with ${selectedDoctor || "Dr. Rajesh Varma"} for ${treatmentType} has been confirmed! Confirmation ID is AYUR-9142. A confirmation SMS has been dispatched.`;
+    } catch (err: any) {
+      console.error("Booking error:", err);
       const errorMsg: ChatMessage = {
         id: String(Date.now() + 1),
         sender: "agent",
-        text: fallbackText,
+        text: "Error executing appointment booking tool. Slot may already be reserved.",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
       setMessages((prev) => [...prev, errorMsg]);
-      speakText(fallbackText);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleFreeformSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!freeformQuery.trim()) return;
-
-    const query = freeformQuery.trim();
-    setFreeformQuery("");
-
-    // If query mentions booking or appointment, trigger booking flow
-    if (query.toLowerCase().includes("book") || query.toLowerCase().includes("confirm")) {
-      handleSimulateBookAppointment();
-    } else {
-      // Default to checking availability
-      handleSimulateCheckAvailability();
-    }
-  };
-
   return (
     <div className="space-y-6">
-      {/* ElevenLabs Live WebRTC Voice Call Widget */}
+      {/* Official ElevenLabs Live WebRTC Voice Call Widget (Kept at bottom right) */}
       {/* @ts-ignore */}
       <elevenlabs-convai agent-id="agent_3601m6rj4cg6f9brv5kx93ykgag7"></elevenlabs-convai>
       <Script src="https://elevenlabs.io/convai-widget/index.js" strategy="afterInteractive" />
 
-      {/* Live Voice Testing Banner */}
-      <div className="bg-gradient-to-r from-emerald-900 via-slate-900 to-teal-900 border border-emerald-500/40 rounded-2xl p-6 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-5 text-white">
+      {/* Live Voice Hero Banner */}
+      <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 border border-emerald-500/40 rounded-2xl p-6 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-5 text-white">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0 shadow-inner">
             <Sparkles className="w-6 h-6 animate-pulse text-emerald-400" />
@@ -438,23 +393,40 @@ export default function SimulatorPage() {
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-base font-bold text-white tracking-tight">
-                Live In-Browser Voice Call (Asha)
+                ElevenLabs Conversational AI Voice Receptionist (Asha)
               </h3>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                ElevenLabs WebRTC Active
+                WebRTC Real-Time
               </span>
             </div>
             <p className="text-xs text-slate-300 mt-1 max-w-xl leading-relaxed">
-              Look at the <strong>floating widget in the bottom-right corner</strong> of your screen (labeled <em>"Need help? Start a call"</em>). Click it to talk directly to Asha with your microphone in Malayalam or English!
+              Click <strong>"Speak to Asha"</strong> below or the floating widget in the bottom-right corner to speak in Malayalam or English with your microphone. Asha replies with natural neural voice and books appointments directly!
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
-          <div className="text-xs bg-emerald-950/60 border border-emerald-500/30 px-3.5 py-2 rounded-xl text-emerald-300 flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>Widget Ready at Bottom Right ↘</span>
-          </div>
+          <button
+            type="button"
+            onClick={triggerElevenLabsCall}
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all active:scale-95 ${
+              isElevenLabsActive
+                ? "bg-rose-600 hover:bg-rose-700 text-white animate-pulse"
+                : "bg-emerald-500 hover:bg-emerald-600 text-white"
+            }`}
+          >
+            {isElevenLabsActive ? (
+              <>
+                <PhoneOff className="w-4 h-4" />
+                <span>End Call with Asha</span>
+              </>
+            ) : (
+              <>
+                <Phone className="w-4 h-4" />
+                <span>🎙️ Speak to Asha Live</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
@@ -468,29 +440,13 @@ export default function SimulatorPage() {
             </span>
           </h2>
           <p className="text-xs md:text-sm text-slate-500">
-            Simulate incoming patient voice queries with live audio speech synthesis and verify ElevenLabs tool executions
+            Test incoming patient voice queries and verify live ElevenLabs tool executions against PostgreSQL
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Audio Output Toggle */}
-          <button
-            onClick={() => setVoiceAudioEnabled(!voiceAudioEnabled)}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
-              voiceAudioEnabled
-                ? "bg-emerald-50 text-emerald-700 border-emerald-300"
-                : "bg-slate-100 text-slate-500 border-slate-200"
-            }`}
-          >
-            {voiceAudioEnabled ? <Volume2 className="w-4 h-4 text-emerald-600" /> : <VolumeX className="w-4 h-4" />}
-            <span>Voice Audio: {voiceAudioEnabled ? "ON" : "MUTE"}</span>
-          </button>
-
           <button
             onClick={() => {
-              if (typeof window !== "undefined" && "speechSynthesis" in window) {
-                window.speechSynthesis.cancel();
-              }
               setMessages([
                 {
                   id: "1",
@@ -499,18 +455,20 @@ export default function SimulatorPage() {
                   timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
                 },
               ]);
+              setActiveJsonTab(null);
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors"
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 border border-slate-200 transition-all"
           >
             <RefreshCw className="w-3.5 h-3.5" />
-            <span>Reset</span>
+            <span>Reset Chat</span>
           </button>
         </div>
       </div>
 
+      {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Interactive Chat Console (7 cols) */}
-        <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/90 shadow-xs flex flex-col h-[660px] overflow-hidden">
+        <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/90 shadow-xs flex flex-col h-[680px] overflow-hidden">
           {/* Chat Header */}
           <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -521,30 +479,69 @@ export default function SimulatorPage() {
                 <h4 className="font-bold text-slate-800 text-xs md:text-sm">
                   ElevenLabs Voice Receptionist Agent
                 </h4>
-                <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  Active Speech Synthesis (Web Audio)
+                <div className="flex items-center gap-1.5 text-[11px] font-medium">
+                  <span className={`w-2 h-2 rounded-full ${isElevenLabsActive ? "bg-emerald-500 animate-ping" : "bg-emerald-500"}`}></span>
+                  <span className={isElevenLabsActive ? "text-emerald-700 font-bold" : "text-emerald-600"}>
+                    {isElevenLabsActive ? `ElevenLabs Live: ${elevenLabsStatus}` : "ElevenLabs Neural Voice (Asha)"}
+                  </span>
                 </div>
               </div>
             </div>
+
             <div className="flex items-center gap-2.5">
               <button
                 type="button"
-                onClick={toggleMic}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs ${
-                  isListening
-                    ? "bg-rose-600 text-white animate-pulse"
-                    : "bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200"
+                onClick={triggerElevenLabsCall}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs ${
+                  isElevenLabsActive
+                    ? "bg-rose-600 hover:bg-rose-700 text-white animate-pulse"
+                    : "bg-emerald-600 hover:bg-emerald-700 text-white"
                 }`}
               >
-                <Mic className="w-3.5 h-3.5 text-emerald-700" />
-                <span>{isListening ? "Listening..." : "🎙️ Speak to Asha"}</span>
+                {isElevenLabsActive ? (
+                  <>
+                    <PhoneOff className="w-3.5 h-3.5" />
+                    <span>End Call</span>
+                  </>
+                ) : (
+                  <>
+                    <Mic className="w-3.5 h-3.5" />
+                    <span>🎙️ Speak to Asha</span>
+                  </>
+                )}
               </button>
               <div className="text-[11px] text-slate-400 font-mono hidden sm:block">
                 Voice: ElevenLabs / Asha
               </div>
             </div>
           </div>
+
+          {/* Active Call Live Wave Banner */}
+          {isElevenLabsActive && (
+            <div className="mx-4 mt-3 p-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 rounded-xl text-white flex items-center justify-between shadow-sm animate-fadeIn">
+              <div className="flex items-center gap-2.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-white animate-ping"></div>
+                <div>
+                  <div className="text-xs font-bold flex items-center gap-2">
+                    <span>ElevenLabs Real-Time Audio Active</span>
+                    <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-medium">
+                      {elevenLabsStatus}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-white/90">
+                    Asha is listening! Speak in Malayalam or English with your microphone.
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={triggerElevenLabsCall}
+                className="px-2.5 py-1 bg-white text-rose-600 rounded-lg text-xs font-bold hover:bg-rose-50 transition-all flex items-center gap-1 shrink-0"
+              >
+                <PhoneOff className="w-3 h-3" />
+                <span>Hang Up</span>
+              </button>
+            </div>
+          )}
 
           {/* Messages Scroll Area */}
           <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/40">
@@ -571,112 +568,104 @@ export default function SimulatorPage() {
                       ) : (
                         <>
                           <User className="w-3 h-3" />
-                          <span>Caller (Patient)</span>
+                          <span>Patient Caller</span>
                         </>
                       )}
                     </div>
-                    {msg.text}
+                    <p className="whitespace-pre-line">{msg.text}</p>
 
+                    {/* Tool Call Badge if executed */}
                     {msg.toolCall && (
-                      <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                        <span className="font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-semibold border border-emerald-100">
-                          ⚙️ Tool: {msg.toolCall.name}
+                      <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-emerald-600 font-mono">
+                        <span className="flex items-center gap-1 font-semibold">
+                          <Code2 className="w-3 h-3" />
+                          tool_call: {msg.toolCall.name}()
                         </span>
-                        <button
-                          onClick={() => setActiveJsonTab(msg.toolCall?.response)}
-                          className="text-slate-500 hover:text-slate-800 font-medium underline"
-                        >
-                          View Payload
-                        </button>
+                        <span className="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-200">
+                          Executed (200 OK)
+                        </span>
                       </div>
                     )}
                   </div>
-                  <span className="text-[10px] text-slate-400 mt-1 px-1">
-                    {msg.timestamp}
-                  </span>
+                  <span className="text-[10px] text-slate-400 mt-1 px-1">{msg.timestamp}</span>
                 </div>
               );
             })}
             {isLoading && (
-              <div className="flex items-center gap-2 text-xs text-slate-400 italic">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce"></div>
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce [animation-delay:-.3s]"></div>
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce [animation-delay:-.5s]"></div>
-                <span>Executing tool webhook & synthesizing response...</span>
+              <div className="flex items-center gap-2 text-xs text-slate-400 p-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span>Executing tool against live database...</span>
               </div>
             )}
-          </div>
-
-          {/* Quick Trigger Tool Buttons */}
-          <div className="p-2.5 border-t border-slate-200 bg-slate-50/80 flex flex-wrap gap-2 text-xs">
-            <button
-              onClick={handleSimulateCheckAvailability}
-              disabled={isLoading}
-              className="px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-semibold border border-emerald-300 transition-colors flex items-center gap-1.5"
-            >
-              <Clock className="w-3.5 h-3.5 text-emerald-700" />
-              <span>1. Check Availability</span>
-            </button>
-            <button
-              onClick={handleSimulateBookAppointment}
-              disabled={isLoading}
-              className="px-3 py-1.5 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-900 font-semibold border border-blue-300 transition-colors flex items-center gap-1.5"
-            >
-              <CheckCircle2 className="w-3.5 h-3.5 text-blue-700" />
-              <span>2. Confirm Booking</span>
-            </button>
           </div>
 
           {/* Interactive Voice & Text Input */}
           <form onSubmit={handleFreeformSubmit} className="p-3 border-t border-slate-200 bg-white flex items-center gap-2">
             <button
               type="button"
-              onClick={toggleMic}
-              title={isListening ? "Listening... click to stop" : "Click to speak with microphone"}
+              onClick={triggerElevenLabsCall}
+              title={isElevenLabsActive ? "End ElevenLabs call" : "Click to speak to Asha with ElevenLabs"}
               className={`p-2 rounded-xl transition-all ${
-                isListening
+                isElevenLabsActive
                   ? "bg-rose-500 text-white animate-pulse"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200"
               }`}
             >
-              {isListening ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
+              {isElevenLabsActive ? <PhoneOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             </button>
 
             <input
               type="text"
-              placeholder={isListening ? "Listening to your voice..." : "Type a query (e.g., 'Do you have slots for Dr. Varma tomorrow?')..."}
               value={freeformQuery}
               onChange={(e) => setFreeformQuery(e.target.value)}
-              className="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50"
+              placeholder="Type message or click 'Speak to Asha' to talk..."
+              className="flex-1 text-xs md:text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
             />
 
             <button
               type="submit"
-              disabled={isLoading}
-              className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1 transition-colors shadow-xs"
+              disabled={isLoading || !freeformQuery.trim()}
+              className="p-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors disabled:opacity-50"
             >
-              <Send className="w-3.5 h-3.5" />
-              <span>Send</span>
+              <Send className="w-4 h-4" />
             </button>
           </form>
         </div>
 
-        {/* Right Column: Dynamic Parameters & Tool Response Inspector (5 cols) */}
+        {/* Right Column: Live Booking Form & Tool Inspector (5 cols) */}
         <div className="lg:col-span-5 space-y-6">
-          {/* Tool Parameters Form */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-4">
-            <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
-              <Stethoscope className="w-4 h-4 text-emerald-600" />
-              <span>Simulated Caller & Booking Details</span>
-            </h3>
+          {/* Caller Details & Doctor Selection */}
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+                <User className="w-4 h-4 text-emerald-600" />
+                <span>Simulated Caller & Booking Details</span>
+              </div>
+              <span className="text-[10px] text-slate-400 font-mono">Live Sync</span>
+            </div>
 
-            <div className="space-y-3 text-xs">
+            <div className="space-y-3.5 text-xs">
+              <div>
+                <label className="block font-medium text-slate-700 mb-1">Target Clinic</label>
+                <select
+                  value={selectedClinic}
+                  onChange={(e) => setSelectedClinic(e.target.value)}
+                  className="w-full p-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 font-medium"
+                >
+                  {clinics.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} ({c.timezone})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div>
                 <label className="block font-medium text-slate-700 mb-1">Target Doctor</label>
                 <select
                   value={selectedDoctor}
                   onChange={(e) => setSelectedDoctor(e.target.value)}
-                  className="w-full p-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 font-medium"
+                  className="w-full p-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 font-medium"
                 >
                   {doctors.map((d) => (
                     <option key={d.id} value={d.name}>
@@ -691,12 +680,12 @@ export default function SimulatorPage() {
                 <select
                   value={treatmentType}
                   onChange={(e) => setTreatmentType(e.target.value)}
-                  className="w-full p-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 font-medium"
+                  className="w-full p-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-800"
                 >
                   <option value="Panchakarma Consultation">Panchakarma Consultation</option>
-                  <option value="Nadi Pariksha & Pulse Diagnosis">Nadi Pariksha & Pulse Diagnosis</option>
-                  <option value="Dosha Assessment & Diet Plan">Dosha Assessment & Diet Plan</option>
-                  <option value="General Ayurvedic Consultation">General Ayurvedic Consultation</option>
+                  <option value="Abhyangam Therapy">Abhyangam Therapy</option>
+                  <option value="Shirodhara Detox">Shirodhara Detox</option>
+                  <option value="Ayurvedic Dietetics">Ayurvedic Dietetics</option>
                 </select>
               </div>
 
@@ -706,11 +695,11 @@ export default function SimulatorPage() {
                   type="datetime-local"
                   value={requestedDateTime}
                   onChange={(e) => setRequestedDateTime(e.target.value)}
-                  className="w-full p-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 font-medium"
+                  className="w-full p-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-800"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-medium text-slate-700 mb-1">Patient Name</label>
                   <input
@@ -730,6 +719,27 @@ export default function SimulatorPage() {
                   />
                 </div>
               </div>
+
+              <div className="pt-2 flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleSimulateCheckAvailability}
+                  disabled={isLoading}
+                  className="flex-1 py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Check Availability</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSimulateBooking}
+                  disabled={isLoading}
+                  className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Confirm Booking</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -746,7 +756,7 @@ export default function SimulatorPage() {
             <pre className="text-[11px] font-mono text-emerald-300 overflow-x-auto p-3 rounded-xl bg-slate-950/80 max-h-56">
               {activeJsonTab
                 ? JSON.stringify(activeJsonTab, null, 2)
-                : `// Click "Check Availability" or "Confirm Booking"\n// to execute tool webhooks in real-time\n{\n  "status": "ready",\n  "clinic_id": "${selectedClinic}"\n}`}
+                : `// Click "Check Availability" or "Confirm Booking"\n// or speak to Asha to execute webhooks in real-time\n{\n  "status": "ready",\n  "clinic_id": "${selectedClinic}"\n}`}
             </pre>
           </div>
         </div>
