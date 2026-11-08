@@ -74,7 +74,7 @@ export default function CallLogsPage() {
       </div>
 
       {/* Search Bar */}
-      <div className="bg-white rounded-xl p-4 border border-slate-200/90 shadow-xs flex items-center justify-between gap-4">
+      <div className="bg-white rounded-xl p-4 border border-slate-200/90 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="relative w-full max-w-md">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input

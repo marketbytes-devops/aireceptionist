@@ -232,9 +232,9 @@ export default function DoctorsPage() {
                   return (
                     <div
                       key={dayName}
-                      className="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 bg-slate-50/70 hover:bg-slate-50 transition-colors"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border border-slate-100 bg-slate-50/70 hover:bg-slate-50 transition-colors gap-2 sm:gap-3"
                     >
-                      <div className="w-32 font-semibold text-xs text-slate-800 flex items-center gap-2">
+                      <div className="w-full sm:w-32 font-semibold text-xs text-slate-800 flex items-center gap-2">
                         <Calendar className="w-3.5 h-3.5 text-slate-400" />
                         <span>{dayName}</span>
                       </div>

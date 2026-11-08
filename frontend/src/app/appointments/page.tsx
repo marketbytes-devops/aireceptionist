@@ -155,7 +155,7 @@ export default function AppointmentsPage() {
       {/* Appointments Table */}
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[760px]">
             <thead>
               <tr className="bg-slate-50/80 text-slate-500 uppercase tracking-wider border-b border-slate-200 font-medium">
                 <th className="py-3.5 px-6">Patient</th>

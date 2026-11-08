@@ -1,11 +1,16 @@
 import "./globals.css";
-import type { Metadata } from "next";
-import Sidebar from "@/components/Sidebar";
-import Header from "@/components/Header";
+import type { Metadata, Viewport } from "next";
+import AppLayout from "@/components/AppLayout";
 
 export const metadata: Metadata = {
   title: "AyurVoice SaaS - Clinic Admin Portal",
   description: "Multi-tenant autonomous AI voice receptionist for Ayurvedic clinics",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -15,16 +20,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-slate-50 flex">
-        <Sidebar />
-        <div className="flex-1 flex flex-col min-w-0">
-          <Header />
-          <main className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto">
-            {children}
-          </main>
-        </div>
+      <body className="min-h-screen bg-slate-50 antialiased overflow-x-hidden">
+        <AppLayout>{children}</AppLayout>
       </body>
     </html>
   );
 }
-

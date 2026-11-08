@@ -385,14 +385,14 @@ export default function SimulatorPage() {
       <Script src="https://elevenlabs.io/convai-widget/index.js" strategy="afterInteractive" />
 
       {/* Live Voice Hero Banner */}
-      <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 border border-emerald-500/40 rounded-2xl p-6 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-5 text-white">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0 shadow-inner">
-            <Sparkles className="w-6 h-6 animate-pulse text-emerald-400" />
+      <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 border border-emerald-500/40 rounded-2xl p-4 sm:p-6 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4 text-white">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0 shadow-inner">
+            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse text-emerald-400" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-white tracking-tight">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">
                 ElevenLabs Conversational AI Voice Receptionist (Asha)
               </h3>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
@@ -409,7 +409,7 @@ export default function SimulatorPage() {
           <button
             type="button"
             onClick={triggerElevenLabsCall}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition-all active:scale-95 ${
+            className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 ${
               isElevenLabsActive
                 ? "bg-rose-600 hover:bg-rose-700 text-white animate-pulse"
                 : "bg-emerald-500 hover:bg-emerald-600 text-white"
@@ -468,11 +468,11 @@ export default function SimulatorPage() {
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Interactive Chat Console (7 cols) */}
-        <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/90 shadow-xs flex flex-col h-[680px] overflow-hidden">
+        <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/90 shadow-xs flex flex-col min-h-[500px] h-[75vh] md:h-[680px] overflow-hidden">
           {/* Chat Header */}
-          <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+          <div className="p-3.5 sm:p-4 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+              <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs shrink-0">
                 <Bot className="w-5 h-5" />
               </div>
               <div>
@@ -488,7 +488,7 @@ export default function SimulatorPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={triggerElevenLabsCall}
@@ -518,7 +518,7 @@ export default function SimulatorPage() {
 
           {/* Active Call Live Wave Banner */}
           {isElevenLabsActive && (
-            <div className="mx-4 mt-3 p-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 rounded-xl text-white flex items-center justify-between shadow-sm animate-fadeIn">
+            <div className="mx-4 mt-3 p-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 rounded-xl text-white flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-sm animate-fadeIn">
               <div className="flex items-center gap-2.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-white animate-ping"></div>
                 <div>
@@ -535,7 +535,7 @@ export default function SimulatorPage() {
               </div>
               <button
                 onClick={triggerElevenLabsCall}
-                className="px-2.5 py-1 bg-white text-rose-600 rounded-lg text-xs font-bold hover:bg-rose-50 transition-all flex items-center gap-1 shrink-0"
+                className="px-2.5 py-1 bg-white text-rose-600 rounded-lg text-xs font-bold hover:bg-rose-50 transition-all flex items-center justify-center gap-1 w-full sm:w-auto shrink-0"
               >
                 <PhoneOff className="w-3 h-3" />
                 <span>Hang Up</span>
@@ -699,7 +699,7 @@ export default function SimulatorPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-medium text-slate-700 mb-1">Patient Name</label>
                   <input
@@ -720,12 +720,12 @@ export default function SimulatorPage() {
                 </div>
               </div>
 
-              <div className="pt-2 flex gap-2">
+              <div className="pt-2 flex flex-col sm:flex-row gap-2">
                 <button
                   type="button"
                   onClick={handleSimulateCheckAvailability}
                   disabled={isLoading}
-                  className="flex-1 py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5"
+                  className="w-full sm:flex-1 py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5"
                 >
                   <Calendar className="w-3.5 h-3.5" />
                   <span>Check Availability</span>
@@ -734,7 +734,7 @@ export default function SimulatorPage() {
                   type="button"
                   onClick={handleSimulateBooking}
                   disabled={isLoading}
-                  className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                  className="w-full sm:flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Confirm Booking</span>

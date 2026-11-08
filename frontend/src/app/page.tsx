@@ -48,16 +48,16 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Top Banner / Welcome */}
-      <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 rounded-2xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 rounded-2xl p-5 sm:p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
         <div className="relative z-10 max-w-2xl">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold mb-3 border border-emerald-500/30">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Ayurvedic Conversational Receptionist Active</span>
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">
             Namaste, Sree Kerala Ayurvedic Clinic
           </h2>
-          <p className="mt-2 text-sm text-slate-300 leading-relaxed">
+          <p className="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed">
             Your ElevenLabs AI voice receptionist is handling patient calls, checking doctor availability in real-time, and scheduling consultations.
           </p>
 
@@ -135,8 +135,8 @@ export default function DashboardPage() {
             </Link>
           </div>
 
-          <div className="overflow-x-auto mt-4">
-            <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto mt-4 -mx-2 sm:mx-0">
+            <table className="w-full text-left text-xs min-w-[640px]">
               <thead>
                 <tr className="text-slate-400 uppercase tracking-wider border-b border-slate-100">
                   <th className="pb-3 font-medium">Patient</th>

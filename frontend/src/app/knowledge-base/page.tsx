@@ -148,34 +148,34 @@ Dr. Ananya Nair (ഡോക്ടർ അനന്യ നായർ):
   };
 
   return (
-    <div className="p-8 space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-2xl shadow-sm">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               <BookOpen className="w-5 h-5" />
             </div>
-            <h1 className="text-xl font-bold text-white tracking-tight">
+            <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight">
               Hospital Knowledge Base & AI Brain
             </h1>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">
+            <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">
               Real-Time Sync
             </span>
           </div>
-          <p className="text-sm text-slate-400">
+          <p className="text-xs sm:text-sm text-slate-400">
             Add your hospital details, doctor schedules, treatments, pricing, and rules. When patients call, the AI answers in Malayalam and English using this data.
           </p>
         </div>
 
         {/* Clinic Selector & Save Button */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5">
-            <Building2 className="w-4 h-4 text-emerald-400" />
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 flex-1 sm:flex-none">
+            <Building2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <select
               value={selectedClinic}
               onChange={handleClinicChange}
-              className="bg-transparent text-sm text-slate-200 outline-none cursor-pointer"
+              className="bg-transparent text-xs sm:text-sm text-slate-200 outline-none cursor-pointer w-full"
             >
               {clinics.map((c) => (
                 <option key={c.id} value={c.id} className="bg-slate-900 text-slate-200">
@@ -188,7 +188,7 @@ Dr. Ananya Nair (ഡോക്ടർ അനന്യ നായർ):
           <button
             onClick={handleSaveAndSync}
             disabled={isSaving || isLoading}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-medium text-sm transition-all shadow-lg shadow-emerald-950/40 disabled:opacity-50"
+            className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-lg shadow-emerald-950/40 disabled:opacity-50 flex-1 sm:flex-none"
           >
             {isSaving ? (
               <RefreshCw className="w-4 h-4 animate-spin" />
@@ -245,7 +245,7 @@ Dr. Ananya Nair (ഡോക്ടർ അനന്യ നായർ):
       {/* Main Knowledge Base Editor Card */}
       <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-sm overflow-hidden">
         {/* Editor Toolbar */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/40">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 sm:px-6 sm:py-4 border-b border-slate-800 bg-slate-950/40 gap-3">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveTab("editor")}
@@ -269,11 +269,11 @@ Dr. Ananya Nair (ഡോക്ടർ അനന്യ നായർ):
             </button>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {/* File Upload Button */}
             <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 cursor-pointer transition-all">
               <Upload className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Upload Document (.txt)</span>
+              <span>Upload (.txt)</span>
               <input
                 type="file"
                 accept=".txt,.md,.json"
