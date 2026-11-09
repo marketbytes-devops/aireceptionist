@@ -381,7 +381,7 @@ export default function SimulatorPage() {
     <div className="space-y-6">
       {/* Official ElevenLabs Live WebRTC Voice Call Widget (Kept at bottom right) */}
       {/* @ts-ignore */}
-      <elevenlabs-convai agent-id="agent_3601m6rj4cg6f9brv5kx93ykgag7"></elevenlabs-convai>
+      <elevenlabs-convai agent-id="agent_6101m7009rj0ee9re550n8f1fvpt"></elevenlabs-convai>
       <Script src="https://elevenlabs.io/convai-widget/index.js" strategy="afterInteractive" />
 
       {/* Live Voice Hero Banner */}

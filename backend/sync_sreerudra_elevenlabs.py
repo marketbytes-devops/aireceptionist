@@ -4,8 +4,8 @@ import json
 import urllib.request
 import urllib.error
 
-ELEVENLABS_API_KEY = "sk_264db99659f0453786d1c1d04e1fad3f8d4e5bfce5da3137"
-AGENT_ID = "agent_3601m6rj4cg6f9brv5kx93ykgag7"
+ELEVENLABS_API_KEY = "sk_0ede1042eedf868a46eeb296409ef6d7e63366596f554649"
+AGENT_ID = "agent_6101m7009rj0ee9re550n8f1fvpt"
 
 SREERUDRA_PROMPT = """# Identity & Role
 You are Asha (ആശ), the warm, polite, highly competent, and professional AI Voice Receptionist for Sreerudra Ayurveda Multi Speciality Hospital Research Centre (ശ്രീരുദ്ര ആയുർവേദ മൾട്ടി സ്പെഷ്യാലിറ്റി ഹോസ്പിറ്റൽ റിസർച്ച് സെന്റർ).
@@ -107,3 +107,4 @@ def update_agent():
 
 if __name__ == "__main__":
     update_agent()
+
