@@ -105,44 +105,130 @@ export default function KnowledgeBasePage() {
 
   const loadTemplate = () => {
     const template = `================================================================================
-SREE KERALA AYURVEDIC CLINIC - OFFICIAL KNOWLEDGE BASE & CLINIC GUIDE
-ശ്രീ കേരള ആയുർവേദിക് ക്ലിനിക്ക് - ഔദ്യോഗിക വിവരങ്ങൾ
+🏥 SREERUDRA AYURVEDA MULTI SPECIALITY HOSPITAL RESEARCH CENTRE
+ശ്രീരുദ്ര ആയുർവേദ മൾട്ടി സ്പെഷ്യാലിറ്റി ഹോസ്പിറ്റൽ റിസർച്ച് സെന്റർ
+MASTER HOSPITAL KNOWLEDGE BASE & CLINICAL DIRECTORY
 ================================================================================
 
-1. GENERAL CLINIC INFORMATION (ക്ലിനിക്ക് വിവരങ്ങൾ)
-- Clinic Name: Sree Kerala Ayurvedic Clinic (ശ്രീ കേരള ആയുർവേദിക് ക്ലിനിക്ക്)
-- Location: MG Road, Near Metro Pillar 642, Kochi, Kerala - 682016
-- Contact Phone: +1 (757) 914-3149
-- Working Hours:
-  * Monday to Saturday: 9:00 AM to 7:00 PM
-  * Sunday: 9:00 AM to 1:00 PM
-- Payment Methods: UPI (Google Pay, PhonePe), Credit/Debit Cards, Cash.
+1. EXECUTIVE SUMMARY & IDENTITY
+- Official Legal Name: Sreerudra Ayurveda Multi Speciality Hospital Research Centre
+- Short Name: Sreerudra Ayurveda
+- Founded In: 2002 (over 20+ years of clinical service)
+- Accreditation: NABH-Accredited (National Accreditation Board for Hospitals & Healthcare Providers)
+- Heritage & Lineage: Rooted in the celebrated Kudalmana family tradition of Kerala, historically renowned for Ayurveda, Vedic scholarship, Sanskrit treatises, and traditional healing systems.
+- Healing Philosophy: Seamless integration of classical Kerala Ayurveda, authentic Panchakarma, and Yoga therapy with modern medical diagnostic investigations. Treatments target the root cause of diseases by restoring the balance of the Tridoshas (Vata, Pitta, Kapha) and enhancing Ojas (vital energy).
+- Patients Served: 5,000+ satisfied domestic and international patients (from USA, UK, UAE, Singapore, Europe, etc.).
+- Official Website: https://www.sreerudraayurveda.com
+- Official Email: info@sreerudraayurveda.com / email@sreerudraayurveda.com
+- Central Helpline / Phone: +91 90379 03333
 
-2. DOCTORS & SPECIALISTS (ഡോക്ടർമാരും സമയക്രമവും)
-Dr. Rajesh Varma (ഡോക്ടർ രാജേഷ് വർമ്മ):
-- Role: Chief Ayurvedic Physician & Senior Vaidya
-- Specialization: Classical Panchakarma, Nadi Pariksha (Pulse Diagnosis / നാഡി പരീക്ഷ), Arthritis, Cervical Spondylosis, and Joint Pain.
+2. HOSPITAL BRANCHES & CONTACT DIRECTORY
+📍 Branch 1: Alappuzha (Alleppey) — Main Hospital Campus & Research Centre
+- Address: Sreerudra Ayurveda Multi-Speciality Hospital, Kaithavana, Alappuzha, Kerala – 688003, India.
+- Landmark: Located behind Kaithavana Church (peaceful lakeside setting, 10 mins drive from Alappuzha town center & railway station).
+- Landline Phone: +91 477 2266778 | Mobile / WhatsApp: +91 98479 48218
+- Facilities: Full In-Patient (IPD) wards, peaceful recovery rooms, specialized Panchakarma therapy suites, in-house customized Ayurvedic diet kitchen, round-the-clock nursing.
+
+📍 Branch 2: Thiruvananthapuram (Trivandrum) — Hospital Campus
+- Address: Sreerudra Ayurveda Multi-Speciality Hospital, Kallampally, Sreekariyam, Thiruvananthapuram (Trivandrum), Kerala – 695017, India.
+- Landmark: Kallampally, Sreekariyam (accessible via public transport, railway station, & Trivandrum International Airport).
+- Landline Phone: +91 471 2590045 | Mobile / WhatsApp: +91 95677 48218
+- Facilities: Full In-Patient (IPD) & Out-Patient (OPD) care, therapy suites, doctor consultation chambers.
+
+📍 Clinical Consultation & Regional Hubs:
+- Kochi (Ernakulam): Dedicated Ayurvedic consultation clinic catering to patients from Kakkanad, Edappally, Aluva, Vyttila, and Tripunithura.
+- Kottayam: Consultation and referral access serving patients from Changanassery, Pala, Ettumanoor, Vaikom, and Kumarakom.
+
+3. MEDICAL LEADERSHIP & DOCTORS TEAM
+1. Dr. K. S. Vishnu Nampoothiry
+- Designation: Founder, Chairman, Patron & Medical Director
+- Qualifications: BAMS, MD (Ayurveda), PGDYT, MSc Yoga
+- Credentials: Kudalmana Ayurvedic lineage, 20+ years experience, Senior Medical Officer (Alappuzha), AMAI State President.
+- Specializations: Ayurvedic Oncology (Cancer Supportive Care), Classical Panchakarma, Neurological Rehabilitation & Stroke Recovery, Severe Spine & Musculoskeletal disorders. Prior appointment mandatory!
+- Consultation Fee: ₹750
+
+2. Dr. Maya Lakshmi Vishnu Nampoothiry
+- Designation: Managing Director
+- Qualifications: M.Sc, MBA, B.Ed, Ph.D
+- Role: Hospital administration, patient-centered care systems, treatment coordination.
+
+3. Dr. Rabith K. Rajan
+- Designation: Chief Physician
+- Qualifications: BAMS, PGDYT
+- Specializations: General Ayurvedic Medicine, Panchakarma therapy, Yoga therapy, In-Patient clinical management.
 - Consultation Fee: ₹500
-- Visiting Days: Monday to Friday
-- Timings: 9:00 AM – 1:00 PM and 2:00 PM – 5:00 PM
 
-Dr. Ananya Nair (ഡോക്ടർ അനന്യ നായർ):
-- Role: Ayurvedic Wellness Consultant
-- Specialization: Skin Care (Psoriasis, Eczema), Hair Fall, Dietetics, and Stress Management.
+4. Dr. Amritha R. S.
+- Designation: Senior Consultant – Proctology & Orthopaedics
+- Qualifications: MS (Ayurveda)
+- Specializations: Ayurvedic Proctology (Anorectal disorders), Orthopaedic care, Joint diseases, Arthritis, Spine disorders.
+- Consultation Fee: ₹500
+
+5. Dr. Reshma Paul
+- Designation: Consultant – Siddha & Ayurvedic Medicine
+- Qualifications: BAMS
+- Specializations: Dermatology (Psoriasis, Eczema, Vitiligo), Systemic herbal medicine, Siddha integration.
 - Consultation Fee: ₹450
-- Visiting Days: Monday, Wednesday, Friday, Saturday
-- Timings: 10:00 AM – 4:00 PM
 
-3. POPULAR AYURVEDIC TREATMENTS (ചികിത്സകൾ)
-- Abhyanga (അഭ്യംഗം): Full body medicated herbal oil massage | Duration: 60 mins | Fee: ₹1,500
-- Shirodhara (ശിരോധാര): Warm herbal oil therapy on forehead for stress & insomnia | Duration: 45 mins | Fee: ₹2,000
-- Elakizhi / Podikizhi (ഇലക്കിഴി / പൊടിക്കിഴി): Herbal pouch therapy for back pain and spondylosis | Duration: 50 mins | Fee: ₹1,800
-- Panchakarma Full Detox (പഞ്ചകർമ്മം): 7-Day Package (₹14,000) / 14-Day Package (₹26,000)
+6. Dr. Muhammed Hashim A. P.
+- Designation: Consultant Proctologist (Ksharasoothra Specialist)
+- Qualifications: BAMS, PGD Kshara Karma
+- Specializations: Ksharasoothra and Kshara Karma treatments for Anal Fistula, Anal Fissure, Pilonidal Sinus, and Hemorrhoids/Piles.
+- Consultation Fee: ₹500
 
-4. APPOINTMENT POLICIES (നിബന്ധനകൾ)
-- Prior booking is required.
-- Please arrive 10 minutes before the appointment time.
-- Cancellation: Free if cancelled at least 2 hours in advance.`;
+7. Dr. Abdul Rasheed
+- Designation: Senior Consultant – General Medicine
+- Qualifications: Rtd. Joint Director, ISM (Indian Systems of Medicine)
+- Specializations: Comprehensive internal medicine, Geriatric healthcare, Metabolic & lifestyle disorders.
+- Consultation Fee: ₹500
+
+4. CLINICAL SPECIALTIES & TREATMENTS
+🧬 1. Ayurvedic Oncology (Cancer Supportive Care)
+- Physician-led integrative care under Dr. K. S. Vishnu Nampoothiry.
+- Improves quality of life, maintains Ojas/immunity, reduces chemo/radiation side effects, alleviates fatigue/pain.
+- Cancers managed: Breast, prostate, thyroid, gastrointestinal, lung, and testicular cancers.
+
+🦴 2. Spine, Joint & Orthopaedic Care
+- Conditions: Low back pain, Cervical Spondylosis, Slip Disc, Spinal Stenosis, Sciatica, Osteoarthritis, Ankylosing Spondylitis, Rheumatoid Arthritis, Gout, Frozen Shoulder.
+- Key Procedures: Kati Vasti, Greeva Vasti, Janu Vasti, Elakizhi, Podikizhi, Pizhichil, Lepanam.
+
+🧠 3. Neurology, Stroke Rehab & Mental Health
+- Conditions: Post-stroke paralysis rehab, Parkinson's Disease, Multiple Sclerosis (MS), Dementia, Trigeminal Neuralgia, Migraine, Vertigo, Insomnia, Stress, Anxiety & Depression.
+- Procedures: Shirodhara, Shirovasti, Nasyam, Medhya Rasayanas, Yoga & Pranayama.
+
+👶 4. Pediatrics & Neurodevelopmental Care (Autism)
+- Holistic management for Autism Spectrum Disorder (ASD) and developmental delays using Medhya Ghritas, Nasya, Shirodhara, and Yoga therapy.
+
+🩺 5. Proctology & Anorectal Clinic (Ksharasoothra)
+- Classical non-surgical Ksharasoothra (medicated thread) therapy for Anal Fistula, Fissure, Pilonidal Sinus, and Piles with very low recurrence.
+
+🌿 6. Dermatology & Cosmetology
+- Psoriasis, Eczema, Vitiligo, Urticaria, Lipoma, Allergic Dermatitis, Hair fall treatments, anti-pigmentation skin care.
+
+🩸 7. Metabolic & Lifestyle Disorders
+- Weight loss / Obesity management (Udvartanam), Diabetes Mellitus, Hypertension, High Cholesterol, Thyroid disorders, Fatty Liver.
+
+🌸 8. Women's Health (Gynecology & Obstetrics)
+- PCOD/PCOS, Fibroids, Infertility, Post-Natal Care (Prasava Raksha - 28/45-day mother & newborn recovery).
+
+🍃 9. Classical Panchakarma & Rejuvenation
+- 5 Detox Therapies: Vamana, Virechana, Vasti/Basti, Nasya, Raktamokshana.
+- Wellness packages: Abhyanga, Shirodhara, Pizhichil, Njavarakizhi, Kayakalpa anti-aging.
+
+5. IN-PATIENT (IPD) FACILITIES & PATIENT CARE
+- Accommodation: Clean, ventilated private and shared recovery rooms in peaceful lakeside (Alappuzha) and tranquil (Trivandrum) campuses.
+- Customized Diet (Pathya Ahara): Wholesome vegetarian meals planned for each patient according to disease, digestive Agni, and Tridosha balance.
+- International & Outstation Support: Airport transfers, pre-arrival tele-consultation, customized packages (7, 14, 21, or 28 days).
+
+6. PATIENT BOOKING INFORMATION
+Required fields collected for booking:
+1. Patient Full Name
+2. Phone / WhatsApp Number
+3. Current City / Location
+4. Health Complaint / Treatment Required
+5. Preferred Branch: Alappuzha, Trivandrum, or Kochi/Kottayam Clinic
+6. Mode: In-Person OPD Visit, In-Patient (IPD) Stay, or Video Tele-Consultation
+7. Preferred Date & Time`;
 
     setKbText(template);
   };

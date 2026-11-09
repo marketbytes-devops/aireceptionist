@@ -55,7 +55,7 @@ export default function SimulatorPage() {
     {
       id: "1",
       sender: "agent",
-      text: "നമസ്കാരം! ശ്രീ കേരള ആയുർവേദിക് ക്ലിനിക്കിലേക്ക് സ്വാഗതം. ഞാൻ ആശയാണ്. I can speak Malayalam and English. How may I help you today?",
+      text: "നമസ്കാരം! ശ്രീരുദ്ര ആയുർവേദ മൾട്ടി സ്പെഷ്യാലിറ്റി ഹോസ്പിറ്റലിലേക്ക് സ്വാഗതം. ഞാൻ ആശയാണ്. I can speak Malayalam and English. How may I help you today?",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);
@@ -203,13 +203,13 @@ export default function SimulatorPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             clinic_id: selectedClinic,
-            doctor_name: selectedDoctor || "Dr. Rajesh Varma",
+            doctor_name: selectedDoctor || "Dr. K. S. Vishnu Nampoothiry",
             date_time: requestedDateTime,
             treatment_type: treatmentType,
           }),
         });
         const data = await res.json();
-        const reply = data.message || "ഡോക്ടർ രാജേഷ് വർമ്മ നാളെ രാവിലെ 10 മണിക്കും 11:30 മണിക്കും ലഭ്യമാണ്. ഏത് സമയമാണ് സൗകര്യം?";
+        const reply = data.message || "ഡോക്ടർ വിഷ്ണു നമ്പൂതിരിയെ കാണാൻ മുൻകൂട്ടി അപ്പോയിന്റ്മെന്റ് ആവശ്യമാണ്. ഏത് സമയമാണ് താങ്കൾക്ക് സൗകര്യം?";
         const agentMsg: ChatMessage = {
           id: String(Date.now() + 1),
           sender: "agent",
@@ -224,7 +224,7 @@ export default function SimulatorPage() {
         setMessages((prev) => [...prev, agentMsg]);
         setActiveJsonTab(data);
       } catch (err) {
-        const fallback = "ഡോക്ടർ രാജേഷ് വർമ്മ തിങ്കൾ മുതൽ വെള്ളി വരെ രാവിലെ 9 മുതൽ ഉച്ചയ്ക്ക് 1 വരെയും ഉച്ചയ്ക്ക് 2 മുതൽ 5 വരെയും ലഭ്യമാണ്.";
+        const fallback = "ഡോക്ടർ വിഷ്ണു നമ്പൂതിരി ആലപ്പുഴ, തിരുവനന്തപുരം ഹോസ്പിറ്റലുകളിൽ ലഭ്യമാണ്. ദയവായി തീയതി വ്യക്തമാക്കുക.";
         setMessages((prev) => [...prev, { id: String(Date.now() + 1), sender: "agent", text: fallback, timestamp: "Now" }]);
       } finally {
         setIsLoading(false);
@@ -233,13 +233,13 @@ export default function SimulatorPage() {
     }
 
     // Default Knowledge Base answers
-    let kbReply = "നമസ്കാരം! ശ്രീ കേരള ആയുർവേദിക് ക്ലിനിക്കിലേക്ക് സ്വാഗതം. ഡോക്ടർ രാജേഷ് വർമ്മയെ കാണാൻ നാളെ രാവിലെ 10 മണിക്കും 11:30 മണിക്കും സമയമുണ്ട്. അപ്പോയിന്റ്മെന്റ് ബുക്ക് ചെയ്യണോ?";
-    if (qLower.includes("shirodhara") || qLower.includes("ശിരോധാര")) {
-      kbReply = "ഞങ്ങളുടെ ക്ലിനിക്കിൽ ശിരോധാര ചികിത്സ ലഭ്യമാണ്. 45 മിനിറ്റ് സെഷന് ₹2,000 ആണ് ഫീസ്. മാനസിക പിരിമുറുക്കത്തിനും ഉറക്കമില്ലായ്മയ്ക്കും ഇത് വളരെ ഉത്തമമാണ്.";
-    } else if (qLower.includes("abhyanga") || qLower.includes("അഭ്യംഗം")) {
-      kbReply = "പരമ്പരാഗത അഭ്യംഗം ഫുൾ ബോഡി മസാജിന് 60 മിനിറ്റിൽ ₹1,500 ആണ് നിരക്ക്. ഔഷധ എണ്ണകൾ ഉപയോഗിച്ചാണ് ചെയ്യുന്നത്.";
-    } else if (qLower.includes("address") || qLower.includes("location") || qLower.includes("സ്ഥലം") || qLower.includes("എവിടെ")) {
-      kbReply = "ശ്രീ കേരള ആയുർവേദിക് ക്ലിനിക്ക് കൊച്ചി എം.ജി. റോഡിൽ മെട്രോ പില്ലർ 642-ന് സമീപമാണ് സ്ഥിതി ചെയ്യുന്നത്.";
+    let kbReply = "നമസ്കാരം! ശ്രീരുദ്ര ആയുർവേദ മൾട്ടി സ്പെഷ്യാലിറ്റി ഹോസ്പിറ്റലിലേക്ക് സ്വാഗതം. ഡോക്ടർ വിഷ്ണു നമ്പൂതിരിയെ കാണാൻ അപ്പോയിന്റ്മെന്റ് ബുക്ക് ചെയ്യണോ?";
+    if (qLower.includes("cancer") || qLower.includes("ഓങ്കോളജി") || qLower.includes("കാൻസർ")) {
+      kbReply = "ശ്രീരുദ്രയിൽ ഡോക്ടർ വിഷ്ണു നമ്പൂതിരിയുടെ നേതൃത്വത്തിൽ ആയുർവേദിക് കാൻസർ സപ്പോർട്ടീവ് കെയർ ലഭ്യമാണ്. പ്രതിരോധശേഷി വർദ്ധിപ്പിക്കാനും കീമോതെറാപ്പി പാർശ്വഫലങ്ങൾ കുറയ്ക്കാനും ഇത് സഹായിക്കുന്നു.";
+    } else if (qLower.includes("fistula") || qLower.includes("piles") || qLower.includes("പൈൽസ്") || qLower.includes("ഫിസ്റ്റുല") || qLower.includes("ക്ഷാരസൂത്രം")) {
+      kbReply = "ശ്രീരുദ്രയിൽ ഫിസ്റ്റുല, പൈൽസ് എന്നിവയ്ക്ക് ഓപ്പറേഷൻ ഇല്ലാതെ പ്രശസ്തമായ ക്ഷാരസൂത്ര (Ksharasoothra) ചികിത്സ ലഭ്യമാണ്.";
+    } else if (qLower.includes("address") || qLower.includes("location") || qLower.includes("സ്ഥലം") || qLower.includes("എവിടെ") || qLower.includes("branch")) {
+      kbReply = "ശ്രീരുദ്രയ്ക്ക് രണ്ട് പ്രധാന ഹോസ്പിറ്റലുകളുണ്ട്: 1) ആലപ്പുഴ കൈതവന ചർച്ചിന് പിന്നിൽ, 2) തിരുവനന്തപുരം ശ്രീകാര്യം കല്ലമ്പള്ളിയിൽ. കൂടാതെ കൊച്ചിയിലും കോട്ടയത്തും കൺസൾട്ടേഷൻ ക്ലിനിക്കുകളുമുണ്ട്.";
     }
 
     const agentMsg: ChatMessage = {

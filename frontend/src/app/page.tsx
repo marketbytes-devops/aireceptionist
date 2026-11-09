@@ -55,10 +55,10 @@ export default function DashboardPage() {
             <span>Ayurvedic Conversational Receptionist Active</span>
           </div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">
-            Namaste, Sree Kerala Ayurvedic Clinic
+            Namaste, Sreerudra Ayurveda Multi Speciality Hospital
           </h2>
           <p className="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed">
-            Your ElevenLabs AI voice receptionist is handling patient calls, checking doctor availability in real-time, and scheduling consultations.
+            Your ElevenLabs AI voice receptionist (Asha) is handling patient calls for Alappuzha & Trivandrum hospital campuses, checking doctor schedules, and scheduling consultations.
           </p>
 
           <div className="mt-5 flex flex-wrap gap-3">

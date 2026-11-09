@@ -24,16 +24,16 @@ export default function Header({ onOpenMobileMenu }: HeaderProps) {
 
         <div className="min-w-0">
           <h1 className="text-xs sm:text-sm md:text-base font-bold text-slate-800 truncate">
-            Sree Kerala Ayurvedic Clinic
+            Sreerudra Ayurveda Multi Speciality Hospital
           </h1>
           <p className="text-[10px] sm:text-xs text-slate-500 truncate">
-            Kochi, Kerala • Asia/Kolkata (IST)
+            Alappuzha & Trivandrum, Kerala • Asia/Kolkata (IST)
           </p>
         </div>
 
         <div className="hidden lg:flex items-center gap-2 bg-emerald-50 text-emerald-700 text-xs px-3 py-1 rounded-full border border-emerald-200/80 font-medium shrink-0">
           <Radio className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
-          <span>ElevenLabs AI Receptionist Active</span>
+          <span>Asha AI Receptionist Active</span>
         </div>
       </div>
 
@@ -41,7 +41,7 @@ export default function Header({ onOpenMobileMenu }: HeaderProps) {
       <div className="flex items-center gap-2 sm:gap-4 shrink-0">
         <div className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-xs font-medium">
           <Phone className="w-3.5 h-3.5 text-emerald-600" />
-          <span>+1 (757) 914-3149</span>
+          <span>+91 90379 03333</span>
         </div>
 
         <button 
@@ -55,11 +55,11 @@ export default function Header({ onOpenMobileMenu }: HeaderProps) {
 
         <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
           <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs border border-emerald-200 shrink-0">
-            RV
+            VN
           </div>
           <div className="hidden md:block text-left text-xs">
-            <div className="font-semibold text-slate-800 leading-tight">Dr. Rajesh Varma</div>
-            <div className="text-slate-400 text-[10px]">Clinic Administrator</div>
+            <div className="font-semibold text-slate-800 leading-tight">Dr. K. S. Vishnu Nampoothiry</div>
+            <div className="text-slate-400 text-[10px]">Medical Director</div>
           </div>
         </div>
       </div>
