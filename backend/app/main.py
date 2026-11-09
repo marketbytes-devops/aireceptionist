@@ -37,12 +37,12 @@ async def lifespan(app: FastAPI):
         existing_clinic = res.scalar_one_or_none()
 
         if not existing_clinic:
-            # 1. Create Default Clinic
+            # 1. Create Default Sreerudra Clinic
             demo_clinic = Clinic(
-                name="Sree Kerala Ayurvedic Clinic",
-                slug="sree-kerala-ayurveda",
-                phone_number="+18005550199",
-                address="108 Dhanwantari Road, Fort Kochi, Kerala, 682001",
+                name="Sreerudra Ayurveda Multi Speciality Hospital Research Centre",
+                slug="sreerudra-ayurveda",
+                phone_number="+919037903333",
+                address="Kaithavana, Alappuzha & Kallampally, Sreekariyam, Trivandrum, Kerala",
                 timezone="Asia/Kolkata"
             )
             session.add(demo_clinic)
@@ -50,9 +50,9 @@ async def lifespan(app: FastAPI):
 
             # 2. Create Default Clinic Admin User
             admin_user = User(
-                email="admin@ayurvoice.com",
-                hashed_password=get_password_hash("AyurVoice2026!"),
-                full_name="Dr. Rajesh Varma (Clinic Admin)",
+                email="admin@sreerudraayurveda.com",
+                hashed_password=get_password_hash("Sreerudra2026!"),
+                full_name="Dr. K. S. Vishnu Nampoothiry",
                 role=UserRole.CLINIC_ADMIN,
                 clinic_id=demo_clinic.id,
                 is_active=True
@@ -62,10 +62,10 @@ async def lifespan(app: FastAPI):
             # 3. Create Specialist Ayurvedic Doctors
             doc1 = Doctor(
                 clinic_id=demo_clinic.id,
-                name="Dr. Rajesh Varma",
-                specialization="Panchakarma & Pulse Diagnosis Specialist",
-                consultation_fee=Decimal("600.00"),
-                bio="BAMS, MD (Ayurveda) with 18+ years experience in authentic Kerala Panchakarma therapies.",
+                name="Dr. K. S. Vishnu Nampoothiry",
+                specialization="Medical Director - Ayurvedic Oncology, Panchakarma & Spine",
+                consultation_fee=Decimal("750.00"),
+                bio="BAMS, MD (Ayurveda), PGDYT, MSc Yoga. 20+ yrs clinical experience, Senior Medical Officer (Alappuzha), AMAI State President. Expert in Cancer supportive care, Classical Panchakarma, Stroke rehab, and severe Spine disorders.",
                 is_active=True
             )
             doc2 = Doctor(
