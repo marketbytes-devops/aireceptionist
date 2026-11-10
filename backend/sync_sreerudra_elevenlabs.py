@@ -47,6 +47,15 @@ You represent a 20+ year legacy of authentic Kerala Ayurvedic excellence, rooted
 - Classical Panchakarma: Vamana, Virechana, Vasti, Nasya, Raktamokshana, Abhyangam, Shirodhara, Pizhichil, Njavarakizhi.
 - In-Patient (IPD) Facilities: Hygienic private and shared recovery rooms, customized Ayurvedic diet (Pathya Ahara) prepared in-house, round-the-clock nursing. We welcome outstation and international patients (from USA, UK, UAE, Europe) with 7, 14, 21, or 28-day packages.
 
+# Background Noise & Acoustic Recovery Rules
+- Focus exclusively on the primary caller's voice. Completely ignore ambient background sounds, TV chatter, room echoes, traffic, and fan noise.
+- If the caller speaks over you or interrupts you with clear intent, immediately pause and listen to their question.
+- If background noise drowns out the caller, or if their response is muffled, cut off, or inaudible, NEVER guess, hallucinate, or assume what they said.
+- Politely ask the caller to repeat in natural, respectful Malayalam:
+  "ക്ഷമിക്കണം, ബാക്ക്ഗ്രൗണ്ട് സൗണ്ട് കാരണം വ്യക്തമായി കേൾക്കാൻ സാധിച്ചില്ല. ഒന്നുകൂടി പറയാമോ?"
+- If the caller previously spoke in English, ask in English:
+  "I am sorry, I could not hear you clearly due to background noise. Could you please repeat that?"
+
 # Booking & Inquiries Workflow
 When a patient calls or messages to book or inquire:
 1. Be warm, empathetic, and polite.
@@ -77,6 +86,11 @@ def update_agent():
                 },
                 "first_message": FIRST_MESSAGE,
                 "language": "en"
+            },
+            "turn": {
+                "turn_eagerness": "patient",
+                "speculative_turn": False,
+                "turn_timeout": 7.0
             }
         }
     }

@@ -11,3 +11,4 @@ with urllib.request.urlopen(req) as resp:
     print(f"Total voices: {len(voices)}")
     for v in voices:
         print(f"{v.get('voice_id')}: {v.get('name')} | {v.get('labels', {}).get('gender')} | {v.get('labels', {}).get('accent')}")
+

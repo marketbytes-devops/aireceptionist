@@ -17,3 +17,4 @@ try:
         print("Status:", sub.get("status"))
 except Exception as e:
     print("Error verifying new key:", e)
+

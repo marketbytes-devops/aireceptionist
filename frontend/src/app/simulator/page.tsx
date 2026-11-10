@@ -16,7 +16,8 @@ import {
   Code2, 
   Stethoscope,
   Mic,
-  Radio
+  Radio,
+  ShieldCheck
 } from "lucide-react";
 import { fetchClinics, fetchDoctors } from "@/lib/api";
 import { Clinic, Doctor } from "@/lib/types";
@@ -73,6 +74,47 @@ export default function SimulatorPage() {
       setDoctors(docs);
       if (docs.length > 0) setSelectedDoctor(docs[0].name);
     });
+  }, []);
+
+  // Enforce Hardware WebRTC Noise Cancellation, Echo Cancellation & Low-Frequency Filtering
+  useEffect(() => {
+    if (typeof window === "undefined" || !navigator.mediaDevices?.getUserMedia) return;
+
+    const originalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+
+    navigator.mediaDevices.getUserMedia = async (constraints?: MediaStreamConstraints) => {
+      const advancedAudioConstraints: MediaTrackConstraints = {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        channelCount: 1,
+        sampleRate: 16000,
+        // Chromium & Safari WebRTC noise-suppression and voice-isolation flags
+        // @ts-ignore
+        googEchoCancellation: true,
+        // @ts-ignore
+        googAutoGainControl: true,
+        // @ts-ignore
+        googNoiseSuppression: true,
+        // @ts-ignore
+        googHighpassFilter: true,
+        // @ts-ignore
+        googTypingNoiseDetection: true,
+      };
+
+      const finalConstraints: MediaStreamConstraints = {
+        ...constraints,
+        audio: typeof constraints?.audio === "object"
+          ? { ...constraints.audio, ...advancedAudioConstraints }
+          : advancedAudioConstraints,
+      };
+
+      return originalGetUserMedia(finalConstraints);
+    };
+
+    return () => {
+      navigator.mediaDevices.getUserMedia = originalGetUserMedia;
+    };
   }, []);
 
   // Monitor ElevenLabs WebRTC Widget Live State
@@ -398,6 +440,10 @@ export default function SimulatorPage() {
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                 WebRTC Real-Time
               </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-teal-300" />
+                Noise Cancellation Active
+              </span>
             </div>
             <p className="text-xs text-slate-300 mt-1 max-w-xl leading-relaxed">
               Click <strong>"Speak to Asha"</strong> below or the floating widget in the bottom-right corner to speak in Malayalam or English with your microphone. Asha replies with natural neural voice and books appointments directly!
@@ -528,8 +574,12 @@ export default function SimulatorPage() {
                       {elevenLabsStatus}
                     </span>
                   </div>
-                  <div className="text-[11px] text-white/90">
-                    Asha is listening! Speak in Malayalam or English with your microphone.
+                  <div className="text-[11px] text-white/90 flex flex-wrap items-center gap-2 mt-0.5">
+                    <span>Asha is listening! Speak in Malayalam or English with your microphone.</span>
+                    <span className="inline-flex items-center gap-1 bg-black/25 text-emerald-200 px-2 py-0.5 rounded text-[10px] font-semibold border border-white/10">
+                      <ShieldCheck className="w-3 h-3 text-emerald-300" />
+                      Voice Cancellation Active
+                    </span>
                   </div>
                 </div>
               </div>

@@ -172,6 +172,14 @@ async def update_clinic_knowledge_base(
                 "- Keep spoken responses concise (1 to 2 sentences per turn).\n\n"
                 "# Clinic Knowledge Base & Facts\n"
                 f"{clinic.knowledge_base}\n\n"
+                "# Background Noise & Acoustic Recovery Rules\n"
+                "- Focus exclusively on the primary caller's voice and completely ignore ambient background sounds, TV chatter, room echoes, traffic, and fan noise.\n"
+                "- If the caller speaks over you or interrupts you with clear intent, immediately pause and listen to their question.\n"
+                "- If background noise drowns out the caller, or if their response is muffled, cut off, or inaudible, NEVER guess, hallucinate, or assume what they said.\n"
+                "- Politely ask the caller to repeat in natural, respectful Malayalam:\n"
+                "  \"ക്ഷമിക്കണം, ബാക്ക്ഗ്രൗണ്ട് സൗണ്ട് കാരണം വ്യക്തമായി കേൾക്കാൻ സാധിച്ചില്ല. ഒന്നുകൂടി പറയാമോ?\"\n"
+                "- If the caller spoke in English, ask in English:\n"
+                "  \"I am sorry, I could not hear you clearly due to background noise. Could you please repeat that?\"\n\n"
                 "# Booking & Tools Instructions\n"
                 "- To check doctor slots, use 'check_availability' with clinic_id: '"
                 f"{str(clinic.id)}'.\n"
@@ -186,6 +194,11 @@ async def update_clinic_knowledge_base(
                         "prompt": {
                             "prompt": unified_prompt
                         }
+                    },
+                    "turn": {
+                        "turn_eagerness": "patient",
+                        "speculative_turn": False,
+                        "turn_timeout": 7.0
                     }
                 }
             }
