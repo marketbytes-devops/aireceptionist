@@ -1,11 +1,32 @@
 """Sync Sreerudra Ayurveda Multi Speciality Hospital Knowledge Base directly to ElevenLabs Agent."""
 
 import json
+import os
+from pathlib import Path
 import urllib.request
 import urllib.error
 
-ELEVENLABS_API_KEY = "sk_0ede1042eedf868a46eeb296409ef6d7e63366596f554649"
-AGENT_ID = "agent_6101m7009rj0ee9re550n8f1fvpt"
+
+def _load_env_value(key: str, default: str = "") -> str:
+    if os.getenv(key):
+        return os.environ[key]
+    for env_path in (
+        Path(__file__).resolve().parent / ".env",
+        Path(__file__).resolve().parent.parent / ".env",
+    ):
+        if env_path.exists():
+            for line in env_path.read_text(encoding="utf-8", errors="ignore").splitlines():
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                k, v = line.split("=", 1)
+                if k.strip() == key:
+                    return v.strip().strip('"').strip("'")
+    return default
+
+
+ELEVENLABS_API_KEY = _load_env_value("ELEVENLABS_API_KEY")
+AGENT_ID = _load_env_value("ELEVENLABS_AGENT_ID", "agent_2201m74mv8z2f3bs1wpd4ject3d5")
 
 SREERUDRA_PROMPT = """# Identity & Role
 You are Asha (ആശ), the warm, polite, highly competent, and professional AI Voice Receptionist for Sreerudra Ayurveda Multi Speciality Hospital Research Centre (ശ്രീരുദ്ര ആയുർവേദ മൾട്ടി സ്പെഷ്യാലിറ്റി ഹോസ്പിറ്റൽ റിസർച്ച് സെന്റർ).
@@ -113,15 +134,17 @@ FIRST_MESSAGE = (
 )
 
 TOOL_IDS = [
-    "tool_0201m70069cmfjnr38jshd5vkf21",  # check_availability
-    "tool_2701m70069x9e1wvrwhrc9napt7m",  # book_appointment
-    "tool_3501m74jjy9bejcvx0dmfawx8t33",  # find_appointment
-    "tool_6801m74jjyphf6c99fcq5d6hwbqr",  # reschedule_appointment
-    "tool_9601m74jjz3pem4btarp4cpsjt4y",  # cancel_appointment
-    "tool_2801m74jjzh2ff6ssncw4pr50xg5",  # escalate_to_staff
+    "tool_7601m74mv5qxf428r0fcqdcsdb76",  # check_availability
+    "tool_3201m74mv675e39rzec2gefaypxf",  # book_appointment
+    "tool_1701m74mv6p5fd0v1380rmdghxgy",  # find_appointment
+    "tool_0801m74mv74jf01sejz1myq7jjbq",  # reschedule_appointment
+    "tool_5101m74mv7mtfg4b99tq9x248nrb",  # cancel_appointment
+    "tool_8301m74mv82pfbsv7np5q0h57s4w",  # escalate_to_staff
 ]
 
 def update_agent():
+    if not ELEVENLABS_API_KEY:
+        raise RuntimeError("ELEVENLABS_API_KEY is not set in environment or .env")
     url = f"https://api.elevenlabs.io/v1/convai/agents/{AGENT_ID}"
     
     payload = {
