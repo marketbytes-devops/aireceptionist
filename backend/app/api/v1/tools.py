@@ -7,6 +7,14 @@ from backend.app.schemas.tool_calling import (
     CheckAvailabilityResponse,
     BookAppointmentRequest,
     BookAppointmentResponse,
+    FindAppointmentRequest,
+    FindAppointmentResponse,
+    RescheduleAppointmentRequest,
+    RescheduleAppointmentResponse,
+    CancelAppointmentRequest,
+    CancelAppointmentResponse,
+    EscalateStaffRequest,
+    EscalateStaffResponse,
 )
 from backend.app.services.availability_service import AvailabilityService
 from backend.app.services.booking_service import BookingService
@@ -20,11 +28,7 @@ async def check_doctor_availability_tool(
     payload: CheckAvailabilityRequest,
     db: AsyncSession = Depends(get_db)
 ) -> CheckAvailabilityResponse:
-    """ElevenLabs Conversational AI Custom Tool: Check doctor availability for a clinic.
-    
-    Called dynamically by ElevenLabs Agent during a voice call when the patient asks
-    about booking, doctor schedule, or specific date/time.
-    """
+    """Check doctor availability for Sreerudra Ayurveda."""
     return await AvailabilityService.check_availability(
         db=db,
         clinic_id=payload.clinic_id,
@@ -40,15 +44,12 @@ async def book_appointment_tool(
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db)
 ) -> BookAppointmentResponse:
-    """ElevenLabs Conversational AI Custom Tool: Book an appointment.
-    
-    Called dynamically by ElevenLabs Agent once patient confirms preferred time, name,
-    and phone number. Atomically reserves the slot and schedules patient notification.
-    """
+    """Book an appointment (with patient name, age, phone, doctor/specialty)."""
     booking = await BookingService.book_appointment(
         db=db,
         clinic_id=payload.clinic_id,
         patient_name=payload.patient_name,
+        patient_age=payload.patient_age,
         patient_phone=payload.patient_phone,
         appointment_time_str=payload.appointment_time,
         doctor_name=payload.doctor_name,
@@ -57,7 +58,6 @@ async def book_appointment_tool(
         notes=payload.notes,
     )
 
-    # Dispatch asynchronous notification: Celery if enabled, otherwise FastAPI background_tasks
     if getattr(settings, "ENABLE_CELERY", False):
         try:
             from backend.app.tasks.notification_tasks import send_booking_notification_task
@@ -65,7 +65,7 @@ async def book_appointment_tool(
                 patient_phone=payload.patient_phone,
                 patient_name=payload.patient_name,
                 doctor_name=booking.doctor_name,
-                clinic_name="Ayurvedic Clinic",
+                clinic_name="Sreerudra Ayurveda",
                 appointment_time_str=booking.appointment_time,
                 confirmation_code=booking.confirmation_id,
                 send_whatsapp=True
@@ -76,7 +76,7 @@ async def book_appointment_tool(
                 patient_phone=payload.patient_phone,
                 patient_name=payload.patient_name,
                 doctor_name=booking.doctor_name,
-                clinic_name="Ayurvedic Clinic",
+                clinic_name="Sreerudra Ayurveda",
                 appointment_time_str=booking.appointment_time,
                 confirmation_code=booking.confirmation_id
             )
@@ -86,9 +86,74 @@ async def book_appointment_tool(
             patient_phone=payload.patient_phone,
             patient_name=payload.patient_name,
             doctor_name=booking.doctor_name,
-            clinic_name="Ayurvedic Clinic",
+            clinic_name="Sreerudra Ayurveda",
             appointment_time_str=booking.appointment_time,
             confirmation_code=booking.confirmation_id
         )
 
     return booking
+
+
+@router.post("/find-appointment", response_model=FindAppointmentResponse)
+async def find_appointment_tool(
+    payload: FindAppointmentRequest,
+    db: AsyncSession = Depends(get_db)
+) -> FindAppointmentResponse:
+    """Look up an existing booked appointment by phone number, patient name, or confirmation code."""
+    return await BookingService.find_appointments(
+        db=db,
+        clinic_id=payload.clinic_id,
+        patient_phone=payload.patient_phone,
+        patient_name=payload.patient_name,
+        confirmation_code=payload.confirmation_code,
+    )
+
+
+@router.post("/reschedule-appointment", response_model=RescheduleAppointmentResponse)
+async def reschedule_appointment_tool(
+    payload: RescheduleAppointmentRequest,
+    db: AsyncSession = Depends(get_db)
+) -> RescheduleAppointmentResponse:
+    """Reschedule an existing appointment to a confirmed new date and time."""
+    return await BookingService.reschedule_appointment(
+        db=db,
+        clinic_id=payload.clinic_id,
+        appointment_id=payload.appointment_id,
+        patient_phone=payload.patient_phone,
+        patient_name=payload.patient_name,
+        new_appointment_time_str=payload.new_appointment_time,
+        doctor_name=payload.doctor_name,
+    )
+
+
+@router.post("/cancel-appointment", response_model=CancelAppointmentResponse)
+async def cancel_appointment_tool(
+    payload: CancelAppointmentRequest,
+    db: AsyncSession = Depends(get_db)
+) -> CancelAppointmentResponse:
+    """Cancel an existing appointment after explicit confirmation from the caller."""
+    return await BookingService.cancel_appointment(
+        db=db,
+        clinic_id=payload.clinic_id,
+        appointment_id=payload.appointment_id,
+        patient_phone=payload.patient_phone,
+        patient_name=payload.patient_name,
+        reason=payload.reason,
+    )
+
+
+@router.post("/escalate-to-staff", response_model=EscalateStaffResponse)
+async def escalate_to_staff_tool(
+    payload: EscalateStaffRequest,
+    db: AsyncSession = Depends(get_db)
+) -> EscalateStaffResponse:
+    """Log an urgent staff transfer or special inquiry alert for human reception staff."""
+    return await BookingService.escalate_to_staff(
+        db=db,
+        clinic_id=payload.clinic_id,
+        patient_name=payload.patient_name or "Caller",
+        patient_phone=payload.patient_phone or "Unknown",
+        reason=payload.reason,
+        urgency=payload.urgency or "normal",
+        branch=payload.branch or "Central Desk",
+    )

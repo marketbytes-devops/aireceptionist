@@ -144,14 +144,28 @@ export default function CallLogsPage() {
 
                   <div className="flex items-center gap-2 self-start sm:self-auto">
                     {call.sentiment && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold capitalize bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <Sparkles className="w-3 h-3 text-emerald-500" />
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold capitalize border ${
+                          call.sentiment === "urgent"
+                            ? "bg-rose-50 text-rose-700 border-rose-200 animate-pulse"
+                            : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        }`}
+                      >
+                        <Sparkles className={`w-3 h-3 ${call.sentiment === "urgent" ? "text-rose-500" : "text-emerald-500"}`} />
                         <span>{call.sentiment}</span>
                       </span>
                     )}
 
-                    <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 capitalize">
-                      {call.outcome?.replace("_", " ") || "Inquiry Handled"}
+                    <span
+                      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold capitalize ${
+                        call.outcome === "escalated_to_staff"
+                          ? "bg-amber-100 text-amber-800 border border-amber-300"
+                          : "bg-slate-100 text-slate-700"
+                      }`}
+                    >
+                      {call.outcome === "escalated_to_staff"
+                        ? "🚨 Staff Transfer Alert"
+                        : call.outcome?.replace(/_/g, " ") || "Inquiry Handled"}
                     </span>
                   </div>
                 </div>

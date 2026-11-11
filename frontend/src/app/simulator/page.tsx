@@ -56,7 +56,7 @@ export default function SimulatorPage() {
     {
       id: "1",
       sender: "agent",
-      text: "നമസ്കാരം! ശ്രീരുദ്ര ആയുർവേദ മൾട്ടി സ്പെഷ്യാലിറ്റി ഹോസ്പിറ്റലിലേക്ക് സ്വാഗതം. ഞാൻ ആശയാണ്. I can speak Malayalam and English. How may I help you today?",
+      text: "നമസ്കാരം! ശ്രീരുദ്ര ആയുർവേദ മൾട്ടി സ്പെഷ്യാലിറ്റി ഹോസ്പിറ്റലിലേക്ക് സ്വാഗതം. ഞാൻ ആശയാണ്. താങ്കൾക്ക് പുതിയ അപ്പോയിന്റ്മെന്റ് ബുക്ക് ചെയ്യാനാണോ, റീഷെഡ്യൂൾ ചെയ്യാനാണോ, കാൻസൽ ചെയ്യാനാണോ, അതോ ആശുപത്രിയെക്കുറിച്ചുള്ള വിവരങ്ങൾ അറിയാനാണോ? (Welcome to Sreerudra Ayurveda! I am Asha. Would you like to book, reschedule, cancel an appointment, or get hospital information?)",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);

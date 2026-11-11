@@ -180,11 +180,13 @@ async def update_clinic_knowledge_base(
                 "  \"ക്ഷമിക്കണം, ബാക്ക്ഗ്രൗണ്ട് സൗണ്ട് കാരണം വ്യക്തമായി കേൾക്കാൻ സാധിച്ചില്ല. ഒന്നുകൂടി പറയാമോ?\"\n"
                 "- If the caller spoke in English, ask in English:\n"
                 "  \"I am sorry, I could not hear you clearly due to background noise. Could you please repeat that?\"\n\n"
-                "# Booking & Tools Instructions\n"
-                "- To check doctor slots, use 'check_availability' with clinic_id: '"
-                f"{str(clinic.id)}'.\n"
-                "- When the caller confirms doctor, time slot, full name, and phone number, use 'book_appointment'.\n"
-                "- Confirm the booking ID to the caller and wish them good health."
+                "# Receptionist Call Flow & Tools Instructions (5-Branch Workflow)\n"
+                "- Greet callers warmly with the hospital name and ask if they want to Book, Reschedule, Cancel, or get Hospital Info / Staff Help.\n"
+                f"- When checking doctor slots, pass clinic_id '{str(clinic.id)}' to 'check_availability'.\n"
+                "- BOOKING: First collect Patient Name, Age (patient_age), and Phone Number, then Doctor/Specialty & Branch. Check availability with 'check_availability', confirm a slot, and call 'book_appointment'. Share the confirmation ID and wish them good health.\n"
+                "- RESCHEDULING: First verify patient Phone/Name and call 'find_appointment'. Read existing details, check new slots with 'check_availability', confirm with caller, and call 'reschedule_appointment'.\n"
+                "- CANCELLING: Verify patient Phone/Name via 'find_appointment', read existing details, ask explicit confirmation ('നിലവിലുള്ള ഈ അപ്പോയിന്റ്മെന്റ് റദ്ദാക്കാൻ താങ്കൾക്ക് സമ്മതമാണോ?' / 'Are you sure you want to cancel?'), and only after YES call 'cancel_appointment'.\n"
+                "- STAFF ESCALATION / EMERGENCIES: For medical emergencies, human staff requests, or special doubts, collect Name/Phone/Reason and call 'escalate_to_staff', then share helpline +91 90379 03333."
             )
 
             elevenlabs_url = f"https://api.elevenlabs.io/v1/convai/agents/{settings.ELEVENLABS_AGENT_ID}"
