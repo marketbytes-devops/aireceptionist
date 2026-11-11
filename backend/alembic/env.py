@@ -21,7 +21,7 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 # For migrations, use an explicit synchronous driver (psycopg2 for Postgres)
-db_url = get_sync_database_url(settings.DATABASE_URL)
+db_url = get_sync_database_url(config.attributes.get("db_url") or settings.DATABASE_URL)
 
 config.set_main_option("sqlalchemy.url", db_url)
 
