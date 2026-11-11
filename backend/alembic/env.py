@@ -9,6 +9,7 @@ from alembic import context
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 from backend.app.core.config import settings
+from backend.app.core.database import get_sync_database_url
 from backend.app.models.base import Base
 import backend.app.models  # noqa: F401
 
@@ -19,12 +20,8 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
-# For migrations, use standard sync DB driver
-db_url = settings.DATABASE_URL
-if "+aiosqlite" in db_url:
-    db_url = db_url.replace("+aiosqlite", "")
-if "+asyncpg" in db_url:
-    db_url = db_url.replace("+asyncpg", "")
+# For migrations, use an explicit synchronous driver (psycopg2 for Postgres)
+db_url = get_sync_database_url(settings.DATABASE_URL)
 
 config.set_main_option("sqlalchemy.url", db_url)
 
