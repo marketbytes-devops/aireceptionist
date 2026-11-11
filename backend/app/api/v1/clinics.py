@@ -12,6 +12,7 @@ from backend.app.models.schedule import DoctorSchedule
 from backend.app.models.user import User, UserRole
 from backend.app.schemas.clinic import ClinicCreate, ClinicUpdate, ClinicResponse, ClinicKnowledgeBaseUpdate
 from backend.app.core.config import settings
+from backend.app.core.elevenlabs_config import build_elevenlabs_agent_patch
 import httpx
 from backend.app.schemas.doctor import DoctorResponse
 from backend.app.schemas.schedule import DoctorScheduleResponse
@@ -192,20 +193,11 @@ async def update_clinic_knowledge_base(
             )
 
             elevenlabs_url = f"https://api.elevenlabs.io/v1/convai/agents/{settings.ELEVENLABS_AGENT_ID}"
-            patch_data = {
-                "conversation_config": {
-                    "agent": {
-                        "prompt": {
-                            "prompt": unified_prompt
-                        }
-                    },
-                    "turn": {
-                        "turn_eagerness": "patient",
-                        "speculative_turn": False,
-                        "turn_timeout": 7.0
-                    }
-                }
-            }
+            patch_data = build_elevenlabs_agent_patch(
+                prompt=unified_prompt,
+                voice_id=settings.ELEVENLABS_VOICE_ID or None,
+                model_id=settings.ELEVENLABS_TTS_MODEL_ID or None,
+            )
 
             async with httpx.AsyncClient(timeout=15.0) as client:
                 resp = await client.patch(

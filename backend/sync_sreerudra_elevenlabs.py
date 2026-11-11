@@ -2,9 +2,20 @@
 
 import json
 import os
+import sys
 from pathlib import Path
 import urllib.request
 import urllib.error
+
+WORKSPACE_ROOT = str(Path(__file__).resolve().parent.parent)
+if WORKSPACE_ROOT not in sys.path:
+    sys.path.insert(0, WORKSPACE_ROOT)
+
+from backend.app.core.elevenlabs_config import (
+    DEFAULT_MALAYALAM_VOICE_ID,
+    DEFAULT_TTS_MODEL_ID,
+    build_elevenlabs_agent_patch,
+)
 
 
 def _load_env_value(key: str, default: str = "") -> str:
@@ -27,6 +38,8 @@ def _load_env_value(key: str, default: str = "") -> str:
 
 ELEVENLABS_API_KEY = _load_env_value("ELEVENLABS_API_KEY")
 AGENT_ID = _load_env_value("ELEVENLABS_AGENT_ID", "agent_2201m74mv8z2f3bs1wpd4ject3d5")
+VOICE_ID = _load_env_value("ELEVENLABS_VOICE_ID", DEFAULT_MALAYALAM_VOICE_ID)
+TTS_MODEL_ID = _load_env_value("ELEVENLABS_TTS_MODEL_ID", DEFAULT_TTS_MODEL_ID)
 
 SREERUDRA_PROMPT = """# Identity & Role
 You are Asha (ആശ), the warm, polite, highly competent, and professional AI Voice Receptionist for Sreerudra Ayurveda Multi Speciality Hospital Research Centre (ശ്രീരുദ്ര ആയുർവേദ മൾട്ടി സ്പെഷ്യാലിറ്റി ഹോസ്പിറ്റൽ റിസർച്ച് സെന്റർ).
@@ -150,25 +163,15 @@ def update_agent():
         raise RuntimeError("ELEVENLABS_API_KEY is not set in environment or .env")
     url = f"https://api.elevenlabs.io/v1/convai/agents/{AGENT_ID}"
     
-    payload = {
-        "name": "Asha - Sreerudra Ayurveda AI Receptionist",
-        "conversation_config": {
-            "agent": {
-                "prompt": {
-                    "prompt": SREERUDRA_PROMPT,
-                    "tool_ids": TOOL_IDS
-                },
-                "first_message": FIRST_MESSAGE,
-                "language": "en",
-                "disable_first_message_interruptions": False
-            },
-            "turn": {
-                "turn_eagerness": "patient",
-                "speculative_turn": False,
-                "turn_timeout": 7.0
-            }
-        }
-    }
+    payload = build_elevenlabs_agent_patch(
+        prompt=SREERUDRA_PROMPT,
+        voice_id=VOICE_ID,
+        model_id=TTS_MODEL_ID,
+        tool_ids=TOOL_IDS,
+        first_message=FIRST_MESSAGE,
+        disable_first_message_interruptions=False,
+        agent_name="Asha - Sreerudra Ayurveda AI Receptionist",
+    )
 
     req = urllib.request.Request(
         url,

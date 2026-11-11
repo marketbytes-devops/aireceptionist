@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     ELEVENLABS_API_KEY: str = ""
     ELEVENLABS_AGENT_ID: str = ""
     ELEVENLABS_PHONE_NUMBER_ID: str = ""
+    ELEVENLABS_VOICE_ID: str = "896Jb7AxcYyesi7deFZe"
+    ELEVENLABS_TTS_MODEL_ID: str = "eleven_v4_turbo"
 
     # Twilio Telephony
     TWILIO_ACCOUNT_SID: str = ""
