@@ -79,7 +79,7 @@ class AvailabilityService:
         # If doctor name specified was not found, fallback to any active doctor in clinic
         if not doctor:
             fallback_stmt = select(Doctor).where(
-                and_(Doctor.clinic_id == clinic_id, Doctor.is_active == True)  # noqa
+                and_(Doctor.clinic_id == clinic.id, Doctor.is_active == True)  # noqa
             )
             fallback_res = await db.execute(fallback_stmt)
             doctor = fallback_res.scalars().first()
