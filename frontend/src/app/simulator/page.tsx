@@ -24,6 +24,65 @@ import { Clinic, Doctor } from "@/lib/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://aireceptionist-api.marketbytes.in/api/v1";
 
+interface IstGreetingVars {
+  time_greeting_ml: string;
+  time_greeting_en: string;
+  time_period: string;
+  ist_time: string;
+}
+
+const DEFAULT_IST_GREETING: IstGreetingVars = {
+  time_greeting_ml: "നമസ്കാരം",
+  time_greeting_en: "Hello",
+  time_period: "day",
+  ist_time: "IST",
+};
+
+function getIstTimeGreetingVars(date: Date = new Date()): IstGreetingVars {
+  const hourPart = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Kolkata",
+    hour: "numeric",
+    hour12: false,
+  })
+    .formatToParts(date)
+    .find((p) => p.type === "hour")?.value;
+  const hour = Number(hourPart ?? "12") % 24;
+
+  const formattedTime = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Kolkata",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  }).format(date);
+
+  if (hour >= 5 && hour < 12) {
+    return {
+      time_greeting_ml: "ഗുഡ് മോർണിംഗ്, നമസ്കാരം",
+      time_greeting_en: "Good morning",
+      time_period: "morning",
+      ist_time: `${formattedTime} IST`,
+    };
+  }
+  if (hour >= 12 && hour < 17) {
+    return {
+      time_greeting_ml: "ഗുഡ് ആഫ്റ്റർനൂൺ, നമസ്കാരം",
+      time_greeting_en: "Good afternoon",
+      time_period: "afternoon",
+      ist_time: `${formattedTime} IST`,
+    };
+  }
+  return {
+    time_greeting_ml: "ഗുഡ് ഈവനിംഗ്, നമസ്കാരം",
+    time_greeting_en: "Good evening",
+    time_period: "evening",
+    ist_time: `${formattedTime} IST`,
+  };
+}
+
+function buildSimulatorGreetingText(vars: IstGreetingVars): string {
+  return `${vars.time_greeting_ml}, ശ്രീരുദ്ര ആയുർവേദ ഹോസ്പിറ്റലിലേക്ക് സ്വാഗതം. ഞാൻ ആശ. ഇന്ന് ഞാൻ താങ്കളെ എങ്ങനെ സഹായിക്കാം? (${vars.time_greeting_en}! Welcome to Sreerudra Ayurveda Hospital. How may I assist you today?)`;
+}
+
 interface ChatMessage {
   id: string;
   sender: "agent" | "user";
@@ -45,6 +104,7 @@ export default function SimulatorPage() {
   // ElevenLabs Live Call State
   const [isElevenLabsActive, setIsElevenLabsActive] = useState(false);
   const [elevenLabsStatus, setElevenLabsStatus] = useState<string>("Ready");
+  const [istGreetingVars, setIstGreetingVars] = useState<IstGreetingVars>(DEFAULT_IST_GREETING);
 
   // Booking Form State for Simulator
   const [patientName, setPatientName] = useState("Kavita Raman");
@@ -56,14 +116,35 @@ export default function SimulatorPage() {
     {
       id: "1",
       sender: "agent",
-      text: "നമസ്കാരം, ശ്രീരുദ്ര ആയുർവേദ ഹോസ്പിറ്റലിലേക്ക് സ്വാഗതം. നിങ്ങൾക്ക് എന്താണ് വേണ്ടത്? (Welcome to Sreerudra Ayurveda Hospital. How may I help you?)",
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      text: buildSimulatorGreetingText(DEFAULT_IST_GREETING),
+      timestamp: "",
     },
   ]);
 
   const [freeformQuery, setFreeformQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [activeJsonTab, setActiveJsonTab] = useState<any | null>(null);
+
+  useEffect(() => {
+    const refreshGreeting = () => {
+      const fresh = getIstTimeGreetingVars();
+      setIstGreetingVars(fresh);
+      setMessages((prev) =>
+        prev.length === 1 && prev[0].id === "1"
+          ? [
+              {
+                ...prev[0],
+                text: buildSimulatorGreetingText(fresh),
+                timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+              },
+            ]
+          : prev
+      );
+    };
+    refreshGreeting();
+    const timer = setInterval(refreshGreeting, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     fetchClinics().then((cl) => {
@@ -166,8 +247,12 @@ export default function SimulatorPage() {
   const triggerElevenLabsCall = () => {
     if (typeof window === "undefined") return;
 
+    const freshVars = getIstTimeGreetingVars();
+    setIstGreetingVars(freshVars);
+
     const widget = document.querySelector("elevenlabs-convai");
     if (widget) {
+      widget.setAttribute("dynamic-variables", JSON.stringify(freshVars));
       const shadow = widget.shadowRoot;
       if (shadow) {
         // Find the primary action button inside the widget shadow DOM
@@ -423,7 +508,7 @@ export default function SimulatorPage() {
     <div className="space-y-6">
       {/* Official ElevenLabs Live WebRTC Voice Call Widget (Kept at bottom right) */}
       {/* @ts-ignore */}
-      <elevenlabs-convai agent-id={process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID || "agent_2201m74mv8z2f3bs1wpd4ject3d5"}></elevenlabs-convai>
+      <elevenlabs-convai agent-id={process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID || "agent_2301m778m233ensatqyqh6c6m7w2"} dynamic-variables={JSON.stringify(istGreetingVars)} />
       <Script src="https://elevenlabs.io/convai-widget/index.js" strategy="afterInteractive" />
 
       {/* Live Voice Hero Banner */}
@@ -493,11 +578,13 @@ export default function SimulatorPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => {
+              const fresh = getIstTimeGreetingVars();
+              setIstGreetingVars(fresh);
               setMessages([
                 {
                   id: "1",
                   sender: "agent",
-                  text: "Namaste! Welcome to Sree Kerala Ayurvedic Clinic. I am your autonomous AI voice receptionist. How may I assist with your Ayurvedic wellness today?",
+                  text: buildSimulatorGreetingText(fresh),
                   timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
                 },
               ]);

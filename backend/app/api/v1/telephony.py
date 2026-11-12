@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import websockets
 from backend.app.core.config import settings
 from backend.app.core.database import get_db
+from backend.app.core.elevenlabs_config import build_conversation_initiation_payload
 from backend.app.models.clinic import Clinic
 from backend.app.models.call_log import CallLog
 from backend.app.services.telephony_service import TelephonyService
@@ -103,7 +104,8 @@ async def twilio_media_stream_websocket(
                 elevenlabs_url,
                 extra_headers={"xi-api-key": settings.ELEVENLABS_API_KEY}
             )
-            logger.info("Connected to ElevenLabs Realtime WebSocket agent.")
+            await elevenlabs_ws.send(json.dumps(build_conversation_initiation_payload()))
+            logger.info("Connected to ElevenLabs Realtime WebSocket agent with IST greeting data.")
 
         while True:
             data = await websocket.receive_text()

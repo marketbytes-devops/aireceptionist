@@ -75,12 +75,53 @@ async def test_knowledge_base_sync_locks_v4_turbo_malayalam_voice(client, test_d
     assert response.json()["sync_status"] == "synced_to_elevenlabs"
 
     cfg = captured["json"]["conversation_config"]
+    prompt_text = cfg["agent"]["prompt"]["prompt"]
     assert cfg["agent"]["language"] == "ml"
+    assert "{{time_greeting_ml}}" in cfg["agent"]["first_message"]
+    assert "time_greeting_ml" in cfg["agent"]["dynamic_variables"]["dynamic_variable_placeholders"]
+    assert "EMOTIONAL ADAPTATION" in prompt_text
+    assert "ADDRESS PROBLEM OR QUESTION FIRST" in prompt_text
+    assert "ASK PREFERRED BRANCH NEXT" in prompt_text
+    assert prompt_text.index("ASK PREFERRED BRANCH NEXT") < prompt_text.index("COLLECT PATIENT DETAILS AFTER PROBLEM & BRANCH")
     assert cfg["tts"]["model_id"] == DEFAULT_TTS_MODEL_ID
     assert cfg["tts"]["voice_id"] == DEFAULT_MALAYALAM_VOICE_ID
     assert cfg["tts"]["expressive_mode"] is False
     assert cfg["tts"]["stability"] == 0.85
     assert cfg["tts"]["similarity_boost"] == 0.9
     assert cfg["tts"]["clone_strength"] == 0.5
+
+
+def test_ist_time_of_day_greetings():
+    from datetime import datetime
+    from backend.app.core.elevenlabs_config import (
+        IST_TIMEZONE,
+        build_conversation_initiation_payload,
+        get_ist_time_greeting,
+    )
+
+    morning = get_ist_time_greeting(datetime(2026, 11, 12, 8, 30, tzinfo=IST_TIMEZONE))
+    assert morning["time_period"] == "morning"
+    assert morning["time_greeting_en"] == "Good morning"
+    assert "ഗുഡ് മോർണിംഗ്" in morning["time_greeting_ml"]
+
+    afternoon = get_ist_time_greeting(datetime(2026, 11, 12, 15, 8, tzinfo=IST_TIMEZONE))
+    assert afternoon["time_period"] == "afternoon"
+    assert afternoon["time_greeting_en"] == "Good afternoon"
+    assert "ഗുഡ് ആഫ്റ്റർനൂൺ" in afternoon["time_greeting_ml"]
+
+    evening = get_ist_time_greeting(datetime(2026, 11, 12, 19, 45, tzinfo=IST_TIMEZONE))
+    assert evening["time_period"] == "evening"
+    assert evening["time_greeting_en"] == "Good evening"
+    assert "ഗുഡ് ഈവനിംഗ്" in evening["time_greeting_ml"]
+
+    late_night = get_ist_time_greeting(datetime(2026, 11, 12, 4, 59, tzinfo=IST_TIMEZONE))
+    assert late_night["time_period"] == "evening"
+
+    ws_payload = build_conversation_initiation_payload(
+        datetime(2026, 11, 12, 15, 8, tzinfo=IST_TIMEZONE)
+    )
+    assert ws_payload["type"] == "conversation_initiation_client_data"
+    assert ws_payload["dynamic_variables"]["time_period"] == "afternoon"
+
 
 
