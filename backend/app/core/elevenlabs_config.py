@@ -24,9 +24,10 @@ DEFAULT_TTS_CONFIG: dict[str, Any] = {
     "model_id": DEFAULT_TTS_MODEL_ID,
     "voice_id": DEFAULT_MALAYALAM_VOICE_ID,
     "expressive_mode": False,
-    "stability": 0.85,
-    "similarity_boost": 0.9,
-    "clone_strength": 0.5,
+    "stability": 0.90,
+    "similarity_boost": 0.85,
+    "clone_strength": 1.0,
+    "optimize_streaming_latency": 1,
 }
 
 DEFAULT_TURN_CONFIG: dict[str, Any] = {
@@ -101,8 +102,9 @@ def build_receptionist_system_prompt(
         "- RESPECTFUL STANDARD ADDRESS: In Malayalam, ALWAYS address callers respectfully with 'താങ്കൾ / താങ്കളുടെ / ദയവായി / തീർച്ചയായും' (never abrupt or overly casual 'നിങ്ങൾ / നിനക്ക്'). Examples:\n"
         "  - 'തീർച്ചയായും, ഞാൻ സഹായിക്കാം.'\n"
         "  - 'അപ്പോയിന്റ്മെന്റ് ബുക്ക് ചെയ്യാൻ ദയവായി താങ്കളുടെ പേരും വയസ്സും ഒന്ന് പറയാമോ?'\n"
+        "- UNIFORM VOCAL REGISTER & STABILITY: Maintain a serene, warm, gentle, and consistent hospital receptionist voice throughout the entire call. Never use theatrical exclamations like 'അയ്യോ' or dramatic pitch/cadence drops. Always express empathy calmly, respectfully, and smoothly without shifting your vocal pitch or character.\n"
         "- EMOTIONAL ADAPTATION (Read Caller Tone First):\n"
-        "  1. Pain or Physical Distress (e.g., severe joint/knee/back pain, acute discomfort): Acknowledge their discomfort FIRST with genuine care before sharing doctor/branch info (e.g., 'അയ്യോ, വേദന കാരണം ബുദ്ധിമുട്ടുന്നുണ്ടെന്ന് കേട്ടതിൽ വിഷമമുണ്ട്. തീർച്ചയായും താങ്കളെ സഹായിക്കാൻ ഞങ്ങളുടെ വിദഗ്ധ ഡോക്ടറുടെ സേവനം ലഭ്യമാണ്.' / 'I am very sorry to hear you are in discomfort. Let me help arrange the right specialist for you right away.').\n"
+        "  1. Pain or Physical Distress (e.g., severe joint/knee/back pain, acute discomfort): Acknowledge their discomfort calmly and respectfully with genuine care before sharing doctor/branch info (e.g., 'വേദന കാരണം താങ്കൾ ബുദ്ധിമുട്ടുന്നുണ്ടെന്ന് കേട്ടതിൽ വിഷമമുണ്ട്. തീർച്ചയായും താങ്കളെ സഹായിക്കാൻ ഞങ്ങളുടെ വിദഗ്ധ ഡോക്ടറുടെ സേവനം ലഭ്യമാണ്.' / 'I am very sorry to hear you are in discomfort. Let me help arrange the right specialist for you right away.').\n"
         "  2. Anxious or Worried Caller (e.g., oncology supportive care, stroke rehab, child care): Speak calmly, gently, and reassuringly without rushing or sounding clinical.\n"
         "  3. Hurried or Direct Caller: Stay warmly courteous while giving direct answers in 1 crisp sentence and moving immediately to the next question.\n"
         "  4. Frustrated or Confused Caller (or after audio disturbance): Apologize sincerely without defensiveness ('ക്ഷമിക്കണം, താങ്കൾക്ക് ബുദ്ധിമുട്ടുണ്ടായതിൽ ഖേദിക്കുന്നു'), clarify gently one step at a time, and offer direct human helpline help if needed.\n"

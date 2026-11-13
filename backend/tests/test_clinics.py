@@ -86,9 +86,9 @@ async def test_knowledge_base_sync_locks_v4_turbo_malayalam_voice(client, test_d
     assert cfg["tts"]["model_id"] == DEFAULT_TTS_MODEL_ID
     assert cfg["tts"]["voice_id"] == DEFAULT_MALAYALAM_VOICE_ID
     assert cfg["tts"]["expressive_mode"] is False
-    assert cfg["tts"]["stability"] == 0.85
-    assert cfg["tts"]["similarity_boost"] == 0.9
-    assert cfg["tts"]["clone_strength"] == 0.5
+    assert cfg["tts"]["stability"] == 0.90
+    assert cfg["tts"]["similarity_boost"] == 0.85
+    assert cfg["tts"]["clone_strength"] == 1.0
 
 
 def test_ist_time_of_day_greetings():
