@@ -77,7 +77,7 @@ async def get_active_agent_credentials() -> Dict[str, Any]:
 
     # 1. Check Primary Account
     primary_status = await get_account_status("primary")
-    primary_agent = settings.ELEVENLABS_AGENT_ID or "agent_0901m79nh3fcfhj9yn7f6ktqggfx"
+    primary_agent = settings.ELEVENLABS_AGENT_ID or "agent_6201m7ajf2jbeztrpae3xhw418np"
     primary_remaining = primary_status.get("remaining", 0)
 
     # If Primary has sufficient credits, use it
@@ -94,7 +94,7 @@ async def get_active_agent_credentials() -> Dict[str, Any]:
         }
 
     # 2. Primary has low credits or is unavailable -> Check Backup Account
-    backup_agent = settings.ELEVENLABS_AGENT_ID_BACKUP or "agent_6201m7ajf2jbeztrpae3xhw418np"
+    backup_agent = settings.ELEVENLABS_AGENT_ID_BACKUP or "agent_0901m79nh3fcfhj9yn7f6ktqggfx"
     backup_key = settings.ELEVENLABS_API_KEY_BACKUP
 
     if backup_key:
@@ -143,12 +143,12 @@ async def get_pool_status() -> Dict[str, Any]:
         "is_failover_active": active.get("is_backup", False),
         "primary": {
             "configured": bool(settings.ELEVENLABS_API_KEY),
-            "agent_id": settings.ELEVENLABS_AGENT_ID or "agent_0901m79nh3fcfhj9yn7f6ktqggfx",
+            "agent_id": settings.ELEVENLABS_AGENT_ID or "agent_6201m7ajf2jbeztrpae3xhw418np",
             **primary,
         },
         "backup": {
             "configured": bool(settings.ELEVENLABS_API_KEY_BACKUP),
-            "agent_id": settings.ELEVENLABS_AGENT_ID_BACKUP or "agent_6201m7ajf2jbeztrpae3xhw418np",
+            "agent_id": settings.ELEVENLABS_AGENT_ID_BACKUP or "agent_0901m79nh3fcfhj9yn7f6ktqggfx",
             **backup,
         },
     }

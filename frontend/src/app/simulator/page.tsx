@@ -106,7 +106,7 @@ export default function SimulatorPage() {
   const [elevenLabsStatus, setElevenLabsStatus] = useState<string>("Ready");
   const [istGreetingVars, setIstGreetingVars] = useState<IstGreetingVars>(DEFAULT_IST_GREETING);
   const [activeAgentId, setActiveAgentId] = useState<string>(
-    process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID || "agent_0901m79nh3fcfhj9yn7f6ktqggfx"
+    process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID || "agent_6201m7ajf2jbeztrpae3xhw418np"
   );
   const [agentPoolInfo, setAgentPoolInfo] = useState<{
     account?: string;
