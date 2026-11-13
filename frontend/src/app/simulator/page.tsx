@@ -508,7 +508,7 @@ export default function SimulatorPage() {
     <div className="space-y-6">
       {/* Official ElevenLabs Live WebRTC Voice Call Widget (Kept at bottom right) */}
       {/* @ts-ignore */}
-      <elevenlabs-convai agent-id={process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID || "agent_2301m778m233ensatqyqh6c6m7w2"} dynamic-variables={JSON.stringify(istGreetingVars)} />
+      <elevenlabs-convai agent-id={process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID || "agent_0901m79nh3fcfhj9yn7f6ktqggfx"} dynamic-variables={JSON.stringify(istGreetingVars)} />
       <Script src="https://elevenlabs.io/convai-widget/index.js" strategy="afterInteractive" />
 
       {/* Live Voice Hero Banner */}

@@ -39,7 +39,7 @@ def _load_env_value(key: str, default: str = "") -> str:
 
 
 ELEVENLABS_API_KEY = _load_env_value("ELEVENLABS_API_KEY")
-AGENT_ID = _load_env_value("ELEVENLABS_AGENT_ID", "agent_2301m778m233ensatqyqh6c6m7w2")
+AGENT_ID = _load_env_value("ELEVENLABS_AGENT_ID", "agent_0901m79nh3fcfhj9yn7f6ktqggfx")
 VOICE_ID = _load_env_value("ELEVENLABS_VOICE_ID", DEFAULT_MALAYALAM_VOICE_ID)
 TTS_MODEL_ID = _load_env_value("ELEVENLABS_TTS_MODEL_ID", DEFAULT_TTS_MODEL_ID)
 
@@ -84,12 +84,12 @@ SREERUDRA_PROMPT = build_receptionist_system_prompt(
 FIRST_MESSAGE = DEFAULT_FIRST_MESSAGE
 
 TOOL_IDS = [
-    "tool_4801m778kvn9ffxtebn9qyzkereb",  # check_availability
-    "tool_2501m778kwv9f00b5k4pjrfy2qaf",  # book_appointment
-    "tool_2801m778ky1mebxs3mxz81wwygah",  # find_appointment
-    "tool_0201m778kzh2fry91hpwf07de0rj",  # reschedule_appointment
-    "tool_9301m778m0e5fkf9h9phrwscaa9p",  # cancel_appointment
-    "tool_0301m778m1awfdbrnka4bjhewzd0",  # escalate_to_staff
+    "tool_8801m79n5dhvezj96qxf25yea1vh",  # check_availability
+    "tool_3901m79n5ebxf76806ex6qknwtkq",  # book_appointment
+    "tool_7201m79n5fbkfm1ag59jx6exvpwt",  # find_appointment
+    "tool_0501m79n5g86fj2v88t249g5y2yy",  # reschedule_appointment
+    "tool_6601m79n5h46fxr98bw12xqxtfm6",  # cancel_appointment
+    "tool_2601m79n5j5mfh3atbfzwk0kxbrh",  # escalate_to_staff
 ]
 
 def update_agent():
