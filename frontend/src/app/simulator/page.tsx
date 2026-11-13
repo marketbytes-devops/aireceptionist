@@ -105,6 +105,15 @@ export default function SimulatorPage() {
   const [isElevenLabsActive, setIsElevenLabsActive] = useState(false);
   const [elevenLabsStatus, setElevenLabsStatus] = useState<string>("Ready");
   const [istGreetingVars, setIstGreetingVars] = useState<IstGreetingVars>(DEFAULT_IST_GREETING);
+  const [activeAgentId, setActiveAgentId] = useState<string>(
+    process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID || "agent_0901m79nh3fcfhj9yn7f6ktqggfx"
+  );
+  const [agentPoolInfo, setAgentPoolInfo] = useState<{
+    account?: string;
+    is_backup?: boolean;
+    remaining_credits?: number;
+    character_limit?: number;
+  } | null>(null);
 
   // Booking Form State for Simulator
   const [patientName, setPatientName] = useState("Kavita Raman");
@@ -155,6 +164,25 @@ export default function SimulatorPage() {
       setDoctors(docs);
       if (docs.length > 0) setSelectedDoctor(docs[0].name);
     });
+
+    // Check active ElevenLabs agent & failover quota status
+    fetch(`${API_BASE}/telephony/active-agent`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.agent_id) {
+          setActiveAgentId(data.agent_id);
+          setAgentPoolInfo({
+            account: data.account,
+            is_backup: data.is_backup,
+            remaining_credits: data.remaining_credits,
+            character_limit: data.character_limit,
+          });
+          if (data.dynamic_variables) {
+            setIstGreetingVars(data.dynamic_variables);
+          }
+        }
+      })
+      .catch((err) => console.log("Active-agent check skipped:", err));
   }, []);
 
   // Enforce Hardware WebRTC Noise Cancellation, Echo Cancellation & Low-Frequency Filtering
@@ -366,7 +394,7 @@ export default function SimulatorPage() {
     } else if (qLower.includes("fistula") || qLower.includes("piles") || qLower.includes("പൈൽസ്") || qLower.includes("ഫിസ്റ്റുല") || qLower.includes("ക്ഷാരസൂത്രം")) {
       kbReply = "ശ്രീരുദ്രയിൽ ഫിസ്റ്റുല, പൈൽസ് എന്നിവയ്ക്ക് ഓപ്പറേഷൻ ഇല്ലാതെ പ്രശസ്തമായ ക്ഷാരസൂത്ര (Ksharasoothra) ചികിത്സ ലഭ്യമാണ്.";
     } else if (qLower.includes("address") || qLower.includes("location") || qLower.includes("സ്ഥലം") || qLower.includes("എവിടെ") || qLower.includes("branch")) {
-      kbReply = "ശ്രീരുദ്രയ്ക്ക് രണ്ട് പ്രധാന ഹോസ്പിറ്റലുകളുണ്ട്: 1) ആലപ്പുഴ കൈതവന ചർച്ചിന് പിന്നിൽ, 2) തിരുവനന്തപുരം ശ്രീകാര്യം കല്ലമ്പള്ളിയിൽ. കൂടാതെ കൊച്ചിയിലും കോട്ടയത്തും കൺസൾട്ടേഷൻ ക്ലിനിക്കുകളുമുണ്ട്.";
+      kbReply = "ശ്രീരുദ്രയ്ക്ക് രണ്ട് പ്രധാന ഹോസ്പിറ്റലുകളുണ്ട്: 1) ആലപ്പുഴ കൈതവന ചർച്ചിന് പിന്നിൽ, 2) തിരുവനന്തപുരം ശ്രീകാര്യം കല്ലമ്പള്ളിയിൽ. കൂടാതെ കൊച്ചിയിലും കൺസൾട്ടേഷൻ ക്ലിനിക്കുമുണ്ട്.";
     }
 
     const agentMsg: ChatMessage = {
@@ -508,7 +536,7 @@ export default function SimulatorPage() {
     <div className="space-y-6">
       {/* Official ElevenLabs Live WebRTC Voice Call Widget (Kept at bottom right) */}
       {/* @ts-ignore */}
-      <elevenlabs-convai agent-id={process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID || "agent_0901m79nh3fcfhj9yn7f6ktqggfx"} dynamic-variables={JSON.stringify(istGreetingVars)} />
+      <elevenlabs-convai key={activeAgentId} agent-id={activeAgentId} dynamic-variables={JSON.stringify(istGreetingVars)} />
       <Script src="https://elevenlabs.io/convai-widget/index.js" strategy="afterInteractive" />
 
       {/* Live Voice Hero Banner */}
@@ -529,6 +557,19 @@ export default function SimulatorPage() {
                 <ShieldCheck className="w-3 h-3 text-teal-300" />
                 Noise Cancellation Active
               </span>
+              {agentPoolInfo && (
+                <span
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1.5 transition-all ${
+                    agentPoolInfo.is_backup
+                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                      : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                  }`}
+                  title={agentPoolInfo.is_backup ? "Backup ElevenLabs account active due to low primary credits" : "Primary ElevenLabs account active"}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${agentPoolInfo.is_backup ? "bg-amber-400 animate-ping" : "bg-emerald-400"}`} />
+                  {agentPoolInfo.is_backup ? "Backup Key (Failover Active)" : "Primary Key Active"} • {agentPoolInfo.remaining_credits?.toLocaleString()} credits
+                </span>
+              )}
             </div>
             <p className="text-xs text-slate-300 mt-1 max-w-xl leading-relaxed">
               Click <strong>"Speak to Asha"</strong> below or the floating widget in the bottom-right corner to speak in Malayalam or English with your microphone. Asha replies with natural neural voice and books appointments directly!

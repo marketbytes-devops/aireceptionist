@@ -68,3 +68,28 @@ async def test_elevenlabs_post_call_webhook(client, test_db):
     assert "Patient Kavita Raman called" in call_log.summary
     assert call_log.sentiment == "positive"
 
+
+@pytest.mark.asyncio
+async def test_get_active_telephony_agent(client):
+    response = await client.get("/api/v1/telephony/active-agent")
+    assert response.status_code == 200
+    data = response.json()
+    assert "agent_id" in data
+    assert "account" in data
+    assert "is_backup" in data
+    assert "dynamic_variables" in data
+    assert "time_greeting_ml" in data["dynamic_variables"]
+
+
+@pytest.mark.asyncio
+async def test_get_pool_status(client):
+    response = await client.get("/api/v1/telephony/pool-status")
+    assert response.status_code == 200
+    data = response.json()
+    assert "active_account" in data
+    assert "primary" in data
+    assert "backup" in data
+    assert "configured" in data["primary"]
+    assert "configured" in data["backup"]
+
+

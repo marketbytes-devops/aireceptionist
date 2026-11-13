@@ -19,12 +19,17 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379/0"
     ENABLE_CELERY: bool = False
 
-    # ElevenLabs Conversational AI
+    # ElevenLabs Conversational AI - Primary
     ELEVENLABS_API_KEY: str = ""
     ELEVENLABS_AGENT_ID: str = ""
     ELEVENLABS_PHONE_NUMBER_ID: str = ""
     ELEVENLABS_VOICE_ID: str = "896Jb7AxcYyesi7deFZe"
     ELEVENLABS_TTS_MODEL_ID: str = "eleven_v4_turbo"
+
+    # ElevenLabs Conversational AI - Secondary / Backup (Failover)
+    ELEVENLABS_API_KEY_BACKUP: str = ""
+    ELEVENLABS_AGENT_ID_BACKUP: str = ""
+    ELEVENLABS_MIN_CHARACTERS_THRESHOLD: int = 300
 
     # Twilio Telephony
     TWILIO_ACCOUNT_SID: str = ""

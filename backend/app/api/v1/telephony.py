@@ -8,7 +8,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import websockets
 from backend.app.core.config import settings
 from backend.app.core.database import get_db
-from backend.app.core.elevenlabs_config import build_conversation_initiation_payload
+from backend.app.core.elevenlabs_config import (
+    build_conversation_initiation_payload,
+    get_ist_time_greeting,
+)
+from backend.app.services.elevenlabs_pool import (
+    get_active_agent_credentials,
+    get_pool_status,
+)
 from backend.app.models.clinic import Clinic
 from backend.app.models.call_log import CallLog
 from backend.app.services.telephony_service import TelephonyService
@@ -76,6 +83,31 @@ async def incoming_twilio_call(
     return Response(content=twiml_content, media_type="application/xml")
 
 
+@router.get("/active-agent")
+async def get_active_telephony_agent():
+    """Return the currently active ElevenLabs agent configuration (Primary vs Backup failover)
+    along with dynamic IST greeting variables for the frontend simulator.
+    """
+    creds = await get_active_agent_credentials()
+    dynamic_vars = get_ist_time_greeting()
+    return {
+        "account": creds.get("account"),
+        "agent_id": creds.get("agent_id"),
+        "is_backup": creds.get("is_backup", False),
+        "remaining_credits": creds.get("remaining", 0),
+        "character_count": creds.get("character_count", 0),
+        "character_limit": creds.get("character_limit", 10000),
+        "threshold": creds.get("threshold", 300),
+        "dynamic_variables": dynamic_vars,
+    }
+
+
+@router.get("/pool-status")
+async def get_elevenlabs_pool_status():
+    """Return credit and health status for both Primary and Backup ElevenLabs accounts."""
+    return await get_pool_status()
+
+
 @router.websocket("/media-stream/{clinic_id}")
 async def twilio_media_stream_websocket(
     websocket: WebSocket,
@@ -84,7 +116,7 @@ async def twilio_media_stream_websocket(
     """WebSocket endpoint connecting Twilio Media Stream with ElevenLabs Conversational AI Realtime API.
     
     Streams bidirectional mulaw/PCM audio:
-    Twilio Call -> WebSocket Media Stream -> ElevenLabs Conversational AI Agent
+    Twilio Call -> WebSocket Media Stream -> ElevenLabs Conversational AI Agent (with Auto-Failover)
     """
     await websocket.accept()
     logger.info(f"Twilio Media Stream WebSocket connected for clinic: {clinic_id}")
@@ -93,19 +125,26 @@ async def twilio_media_stream_websocket(
     call_sid = None
     elevenlabs_ws = None
 
+    creds = await get_active_agent_credentials()
+    active_agent_id = creds.get("agent_id")
+    active_api_key = creds.get("api_key")
+
     elevenlabs_url = (
-        f"wss://api.elevenlabs.io/v1/convai/conversation?agent_id={settings.ELEVENLABS_AGENT_ID}"
+        f"wss://api.elevenlabs.io/v1/convai/conversation?agent_id={active_agent_id}"
     )
 
     try:
         # Connect to ElevenLabs Conversational AI WebSocket if API key / agent configured
-        if settings.ELEVENLABS_API_KEY and settings.ELEVENLABS_AGENT_ID:
+        if active_api_key and active_agent_id:
             elevenlabs_ws = await websockets.connect(
                 elevenlabs_url,
-                extra_headers={"xi-api-key": settings.ELEVENLABS_API_KEY}
+                extra_headers={"xi-api-key": active_api_key}
             )
             await elevenlabs_ws.send(json.dumps(build_conversation_initiation_payload()))
-            logger.info("Connected to ElevenLabs Realtime WebSocket agent with IST greeting data.")
+            logger.info(
+                f"Connected to ElevenLabs Realtime WebSocket agent "
+                f"({creds.get('account')}: {active_agent_id}) with IST greeting data."
+            )
 
         while True:
             data = await websocket.receive_text()
