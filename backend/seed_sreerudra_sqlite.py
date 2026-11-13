@@ -37,7 +37,6 @@ MASTER HOSPITAL KNOWLEDGE BASE & CLINICAL DIRECTORY
 
 📍 Clinical Consultation & Regional Hubs:
 - Kochi (Ernakulam): Dedicated Ayurvedic consultation clinic catering to patients from Kakkanad, Edappally, Aluva, Vyttila, and Tripunithura.
-- Kottayam: Consultation and referral access serving patients from Changanassery, Pala, Ettumanoor, Vaikom, and Kumarakom.
 
 3. MEDICAL LEADERSHIP & DOCTORS TEAM
 1. Dr. K. S. Vishnu Nampoothiry
@@ -126,7 +125,7 @@ Required fields collected for booking:
 2. Phone / WhatsApp Number
 3. Current City / Location
 4. Health Complaint / Treatment Required
-5. Preferred Branch: Alappuzha, Trivandrum, or Kochi/Kottayam Clinic
+5. Preferred Branch: Alappuzha, Trivandrum, or Kochi Clinic
 6. Mode: In-Person OPD Visit, In-Patient (IPD) Stay, or Video Tele-Consultation
 7. Preferred Date & Time
 """

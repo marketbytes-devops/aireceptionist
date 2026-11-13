@@ -27,6 +27,10 @@ from backend.app.api.v1.router import api_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    if os.getenv("TESTING", "").lower() in ("true", "1"):
+        yield
+        return
+
     # Startup: ensure tables exist
     await init_db()
 
@@ -37,13 +41,15 @@ async def lifespan(app: FastAPI):
         existing_clinic = res.scalar_one_or_none()
 
         if not existing_clinic:
+            from backend.seed_sreerudra_prod import SREERUDRA_KB
             # 1. Create Default Sreerudra Clinic
             demo_clinic = Clinic(
                 name="Sreerudra Ayurveda Multi Speciality Hospital Research Centre",
                 slug="sreerudra-ayurveda",
                 phone_number="+919037903333",
                 address="Kaithavana, Alappuzha & Kallampally, Sreekariyam, Trivandrum, Kerala",
-                timezone="Asia/Kolkata"
+                timezone="Asia/Kolkata",
+                knowledge_base=SREERUDRA_KB
             )
             session.add(demo_clinic)
             await session.flush()
@@ -101,6 +107,24 @@ async def lifespan(app: FastAPI):
 
             await session.commit()
             print("Successfully initialized database with demo clinic, doctors, and schedules!")
+        else:
+            # Auto-populate knowledge base if empty or clean Kottayam if present
+            from backend.seed_sreerudra_prod import SREERUDRA_KB
+            needs_update = False
+            if not existing_clinic.knowledge_base or not existing_clinic.knowledge_base.strip():
+                existing_clinic.knowledge_base = SREERUDRA_KB
+                needs_update = True
+            elif "Kottayam" in existing_clinic.knowledge_base or "കോട്ടയം" in existing_clinic.knowledge_base:
+                lines = [
+                    line for line in existing_clinic.knowledge_base.splitlines()
+                    if "Kottayam" not in line and "കോട്ടയം" not in line
+                ]
+                existing_clinic.knowledge_base = "\n".join(lines).replace("Kochi/Kottayam", "Kochi")
+                needs_update = True
+
+            if needs_update:
+                await session.commit()
+                print("Successfully updated existing clinic knowledge base (auto-populated & cleaned)!")
 
     yield
     # Shutdown logic if needed

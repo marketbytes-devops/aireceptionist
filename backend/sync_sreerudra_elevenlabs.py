@@ -51,7 +51,7 @@ You represent a 20+ year legacy of authentic Kerala Ayurvedic excellence, rooted
 - Founded in 2002. NABH-Accredited multi-speciality hospital with In-Patient (IPD) and Out-Patient (OPD) facilities.
 - Main Campus (Alappuzha): Kaithavana, Alappuzha, Kerala – 688003 (behind Kaithavana Church, tranquil lakeside setting). Phones: +91 477 2266778 / +91 98479 48218.
 - Trivandrum Campus: Kallampally, Sreekariyam, Thiruvananthapuram, Kerala – 695017. Phones: +91 471 2590045 / +91 95677 48218.
-- Consultation Hubs: Kochi (Ernakulam) and Kottayam.
+- Consultation Hubs: Kochi (Ernakulam).
 - Central Helpline: +91 90379 03333
 - Website: https://www.sreerudraayurveda.com | Email: info@sreerudraayurveda.com
 

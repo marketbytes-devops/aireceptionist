@@ -88,6 +88,7 @@ services:
       dockerfile: Dockerfile
       args:
         - NEXT_PUBLIC_API_URL=https://aireceptionist-api.marketbytes.in/api/v1
+        - NEXT_PUBLIC_ELEVENLABS_AGENT_ID=${ELEVENLABS_AGENT_ID:-agent_0901m79nh3fcfhj9yn7f6ktqggfx}
     container_name: ayurvoice-frontend
     restart: always
     depends_on:
@@ -96,6 +97,7 @@ services:
       - "127.0.0.1:3010:3000"
     environment:
       - NEXT_PUBLIC_API_URL=https://aireceptionist-api.marketbytes.in/api/v1
+      - NEXT_PUBLIC_ELEVENLABS_AGENT_ID=${ELEVENLABS_AGENT_ID:-agent_0901m79nh3fcfhj9yn7f6ktqggfx}
 
 volumes:
   pgdata:

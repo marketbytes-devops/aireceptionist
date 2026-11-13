@@ -24,87 +24,7 @@ import {
 import { fetchClinics, fetchKnowledgeBase, updateKnowledgeBase } from "@/lib/api";
 import { Clinic } from "@/lib/types";
 
-export default function KnowledgeBasePage() {
-  const [clinics, setClinics] = useState<Clinic[]>([]);
-  const [selectedClinic, setSelectedClinic] = useState<string>("");
-  const [kbText, setKbText] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [activeTab, setActiveTab] = useState<"editor" | "preview">("editor");
-
-  // Load clinic & knowledge base
-  useEffect(() => {
-    fetchClinics().then((cl) => {
-      setClinics(cl);
-      if (cl.length > 0) {
-        setSelectedClinic(cl[0].id);
-        loadKnowledgeBase(cl[0].id);
-      } else {
-        setIsLoading(false);
-      }
-    });
-  }, []);
-
-  const loadKnowledgeBase = async (clinicId: string) => {
-    setIsLoading(true);
-    setStatusMessage(null);
-    try {
-      const data = await fetchKnowledgeBase(clinicId);
-      setKbText(data.knowledge_base || "");
-    } catch (err: any) {
-      console.error("Error loading knowledge base:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleClinicChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newId = e.target.value;
-    setSelectedClinic(newId);
-    loadKnowledgeBase(newId);
-  };
-
-  const handleSaveAndSync = async () => {
-    if (!selectedClinic) return;
-    setIsSaving(true);
-    setStatusMessage(null);
-    try {
-      const res = await updateKnowledgeBase(selectedClinic, kbText, true);
-      setStatusMessage({
-        type: "success",
-        text: res.message || "Knowledge Base successfully saved and synced to AI Receptionist!"
-      });
-    } catch (err: any) {
-      setStatusMessage({
-        type: "error",
-        text: "Failed to sync knowledge base. Please check backend connection."
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target?.result as string;
-      if (content) {
-        setKbText((prev) => prev ? `${prev}\n\n--- UPLOADED FILE: ${file.name} ---\n${content}` : content);
-        setStatusMessage({
-          type: "success",
-          text: `File "${file.name}" loaded into the editor. Click "Save & Sync" to push to AI.`
-        });
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  const loadTemplate = () => {
-    const template = `================================================================================
+const DEFAULT_SREERUDRA_KB = `================================================================================
 🏥 SREERUDRA AYURVEDA MULTI SPECIALITY HOSPITAL RESEARCH CENTRE
 ശ്രീരുദ്ര ആയുർവേദ മൾട്ടി സ്പെഷ്യാലിറ്റി ഹോസ്പിറ്റൽ റിസർച്ച് സെന്റർ
 MASTER HOSPITAL KNOWLEDGE BASE & CLINICAL DIRECTORY
@@ -137,7 +57,6 @@ MASTER HOSPITAL KNOWLEDGE BASE & CLINICAL DIRECTORY
 
 📍 Clinical Consultation & Regional Hubs:
 - Kochi (Ernakulam): Dedicated Ayurvedic consultation clinic catering to patients from Kakkanad, Edappally, Aluva, Vyttila, and Tripunithura.
-- Kottayam: Consultation and referral access serving patients from Changanassery, Pala, Ettumanoor, Vaikom, and Kumarakom.
 
 3. MEDICAL LEADERSHIP & DOCTORS TEAM
 1. Dr. K. S. Vishnu Nampoothiry
@@ -226,11 +145,100 @@ Required fields collected for booking:
 2. Phone / WhatsApp Number
 3. Current City / Location
 4. Health Complaint / Treatment Required
-5. Preferred Branch: Alappuzha, Trivandrum, or Kochi/Kottayam Clinic
+5. Preferred Branch: Alappuzha, Trivandrum, or Kochi Clinic
 6. Mode: In-Person OPD Visit, In-Patient (IPD) Stay, or Video Tele-Consultation
 7. Preferred Date & Time`;
 
-    setKbText(template);
+export default function KnowledgeBasePage() {
+  const [clinics, setClinics] = useState<Clinic[]>([]);
+  const [selectedClinic, setSelectedClinic] = useState<string>("");
+  const [kbText, setKbText] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [activeTab, setActiveTab] = useState<"editor" | "preview">("editor");
+
+  // Load clinic & knowledge base
+  useEffect(() => {
+    fetchClinics().then((cl) => {
+      setClinics(cl);
+      if (cl.length > 0) {
+        setSelectedClinic(cl[0].id);
+        loadKnowledgeBase(cl[0].id);
+      } else {
+        setIsLoading(false);
+      }
+    });
+  }, []);
+
+  const loadKnowledgeBase = async (clinicId: string) => {
+    setIsLoading(true);
+    setStatusMessage(null);
+    try {
+      const data = await fetchKnowledgeBase(clinicId);
+      if (data.knowledge_base && data.knowledge_base.trim()) {
+        setKbText(data.knowledge_base);
+      } else {
+        setKbText(DEFAULT_SREERUDRA_KB);
+      }
+    } catch (err: any) {
+      console.error("Error loading knowledge base:", err);
+      setKbText(DEFAULT_SREERUDRA_KB);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleClinicChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newId = e.target.value;
+    setSelectedClinic(newId);
+    loadKnowledgeBase(newId);
+  };
+
+  const handleSaveAndSync = async () => {
+    if (!selectedClinic) return;
+    setIsSaving(true);
+    setStatusMessage(null);
+    try {
+      const res = await updateKnowledgeBase(selectedClinic, kbText, true);
+      setStatusMessage({
+        type: "success",
+        text: res.message || "Knowledge Base successfully saved and synced to AI Receptionist!"
+      });
+    } catch (err: any) {
+      setStatusMessage({
+        type: "error",
+        text: "Failed to sync knowledge base. Please check backend connection."
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        setKbText((prev) => prev ? `${prev}\n\n--- UPLOADED FILE: ${file.name} ---\n${content}` : content);
+        setStatusMessage({
+          type: "success",
+          text: `File "${file.name}" loaded into the editor. Click "Save & Sync" to push to AI.`
+        });
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const loadTemplate = () => {
+    setKbText(DEFAULT_SREERUDRA_KB);
+    setStatusMessage({
+      type: "success",
+      text: "Master template loaded into editor. Click 'Save & Sync' to update the clinic."
+    });
   };
 
   return (
